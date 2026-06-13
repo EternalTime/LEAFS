@@ -24,6 +24,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/EternalTime/pyLEAFS"
+Documentation = "https://damiansowinski.com/pyLEAFS/"
 
 [tool.setuptools.packages.find]
 include = ["pyLEAFS*"]

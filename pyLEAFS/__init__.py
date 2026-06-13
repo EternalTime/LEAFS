@@ -24,6 +24,12 @@ palette
     Named RGB colours for LEAFS visualisation.
 """
 
+def docs():
+    """Open the online pyLEAFS documentation in a web browser."""
+    import webbrowser
+    webbrowser.open('https://damiansowinski.com/pyLEAFS/')
+
+
 from pyLEAFS.grid import Grid
 from pyLEAFS.fields import Field, ResourceField
 from pyLEAFS.spatialhash import SpatialHash
@@ -41,4 +47,5 @@ __all__ = [
     "Simulation",
     "Viewer",
     "palette",
+    "docs",
 ]

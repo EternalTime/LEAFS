@@ -1,0 +1,19 @@
+/* pyLEAFS color scheme, from the LEAFS v2 palette: abyss blue and wire ink
+   with food-green accents. Overrides the sphinx_rtd_theme defaults. */
+
+.wy-side-nav-search,
+.wy-nav-top {
+    background: #2B3A52;   /* abyss_blue */
+}
+
+.wy-side-nav-search input[type=text] {
+    border-color: #50C870; /* food_green */
+}
+
+.wy-nav-side {
+    background: #1C2030;   /* wire_ink */
+}
+
+.wy-menu-vertical p.caption {
+    color: #50C870;        /* food_green */
+}

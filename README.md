@@ -42,6 +42,15 @@ sim = Simulation.forager(seed=0)
 Viewer(sim).play()
 ```
 
+## Documentation
+
+The documentation is hosted at
+[damiansowinski.com/pyLEAFS](https://damiansowinski.com/pyLEAFS/) (or run
+`import pyLEAFS; pyLEAFS.docs()` to open it); the guides cover getting started,
+the model the code implements, and the core architecture with its extension
+seams. To build locally: `make -C docs html` (requires `sphinx` and
+`sphinx_rtd_theme`).
+
 ## Tests
 
 ```bash

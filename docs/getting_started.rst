@@ -10,6 +10,7 @@ Installation
    cd LEAFS
    python3 -m venv .venv
    source .venv/bin/activate
+   python -m pip install --upgrade pip
    pip install -e .
 
 pyLEAFS requires Python 3.8+ (tested on 3.8 through 3.14); numpy and matplotlib

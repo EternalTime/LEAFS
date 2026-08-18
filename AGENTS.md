@@ -8,13 +8,13 @@ This file is the project's committed home for project-intrinsic agent knowledge:
   commands live in the README and in `docs/getting_started.rst`, which must stay
   in step with each other and with `pyproject.toml`.
 - The published site is `damiansowinski.com/LEAFS/` (built from `docs/`).
-  `damiansowinski.com/pyLEAFS/` is a 404; `pyproject.toml`'s `Documentation`
-  URL still points there.
+  `damiansowinski.com/pyLEAFS/` is a 404.
 - Supported interpreters are Python 3.8 through 3.14, verified by running the
   suite on each. The floor is set by the build backend (`setuptools>=61`,
   `requires-python >=3.7`), not by the code, which needs only
   `numpy>=1.17` (`np.random.default_rng`) and `matplotlib>=3.1`
-  (`FuncAnimation(cache_frame_data=...)`). Neither lower bound is declared.
+  (`FuncAnimation(cache_frame_data=...)`); both bounds are declared in
+  `pyproject.toml`.
 
 ## Maintaining this file
 

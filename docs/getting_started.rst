@@ -6,10 +6,27 @@ Installation
 
 .. code-block:: bash
 
-   cd pyLEAFS
+   git clone https://github.com/EternalTime/LEAFS.git
+   cd LEAFS
+   python3 -m venv .venv
+   source .venv/bin/activate
    pip install -e .
 
-pyLEAFS requires Python 3.8+; numpy and matplotlib are installed automatically.
+pyLEAFS requires Python 3.8+ (tested on 3.8 through 3.14); numpy and matplotlib
+are installed automatically. The virtual environment is what makes ``pip``
+available and keeps the install out of a system Python that may refuse it;
+activate it in every new terminal before running any of the commands below.
+
+Building these docs
+-------------------
+
+.. code-block:: bash
+
+   source .venv/bin/activate
+   pip install sphinx sphinx_rtd_theme
+   make -C docs html
+
+The rendered pages land in ``docs/_build/html``.
 
 A first simulation
 -------------------
@@ -105,5 +122,6 @@ Tests
 
 .. code-block:: bash
 
+   source .venv/bin/activate
    pip install pytest
    pytest

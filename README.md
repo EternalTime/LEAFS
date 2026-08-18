@@ -15,11 +15,20 @@ The original MATLAB classes live in `matlab/`.
 ## Installation
 
 ```bash
-cd pyLEAFS
+git clone https://github.com/EternalTime/LEAFS.git
+cd LEAFS
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -e .
 ```
 
-Requires Python 3.8+; numpy and matplotlib are installed automatically.
+Requires Python 3.8+ (tested on 3.8 through 3.14); numpy and matplotlib are
+installed automatically. The virtual environment is what makes `pip` available
+and keeps the install out of a system Python that may refuse it; activate it in
+every new terminal before running any of the commands below.
+
+The [Getting Started guide](https://damiansowinski.com/LEAFS/getting_started.html)
+is the authority on installation and carries the same steps.
 
 ## Quick start
 
@@ -48,12 +57,20 @@ The documentation is hosted at
 [damiansowinski.com/LEAFS](https://damiansowinski.com/LEAFS/) (or run
 `import pyLEAFS; pyLEAFS.docs()` to open it); the guides cover getting started,
 the model the code implements, and the core architecture with its extension
-seams. To build locally: `make -C docs html` (requires `sphinx` and
-`sphinx_rtd_theme`).
+seams. To build it locally:
+
+```bash
+source .venv/bin/activate
+pip install sphinx sphinx_rtd_theme
+make -C docs html
+```
+
+The rendered pages land in `docs/_build/html`.
 
 ## Tests
 
 ```bash
+source .venv/bin/activate
 pip install pytest
 pytest
 ```

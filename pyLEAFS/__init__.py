@@ -27,7 +27,7 @@ palette
 def docs():
     """Open the online pyLEAFS documentation in a web browser."""
     import webbrowser
-    webbrowser.open('https://damiansowinski.com/pyLEAFS/')
+    webbrowser.open('https://damiansowinski.com/LEAFS/')
 
 
 from pyLEAFS.grid import Grid

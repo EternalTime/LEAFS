@@ -23,7 +23,7 @@ Building these docs
 .. code-block:: bash
 
    source .venv/bin/activate
-   pip install sphinx sphinx_rtd_theme
+   pip install -e '.[docs]'
    make -C docs html
 
 The rendered pages land in ``docs/_build/html``.
@@ -123,5 +123,5 @@ Tests
 .. code-block:: bash
 
    source .venv/bin/activate
-   pip install pytest
+   pip install -e '.[test]'
    pytest

@@ -55,6 +55,7 @@ _SCENE_RECT = (0.023, 0.021, 0.640, 0.879)
 # independent of the world's own shape, because of that normalisation.
 _WORST_VIEW_3D = ((90.0, 45.0), (62.0616, 45.0))        # widest, tallest
 
+
 @functools.lru_cache(maxsize=None)
 def _scene_fill_3d():
     """How much of a 3d axes the world box covers, at its widest and tallest.

@@ -38,21 +38,60 @@ _HAZE_SIZE = (0.5, 1.1)         # marker size in points, same order
 _PANEL_WIDTH = 0.318
 _SCENE_RECT = (0.023, 0.021, 0.640, 0.879)
 
-# The widest and tallest the world box's projection ever gets, as a fraction of
-# the 3d axes it lives in, taken over every elevation and azimuth: a box seen
-# down a body diagonal covers far more of the axes than one seen face-on, so
-# the 3d axes is inflated by the reciprocal of the *worst* case. Fitting the
-# default view instead would leave the box clipped as soon as it was dragged.
+# The view angles at which the world box's projection is widest and tallest: a
+# box seen down a body diagonal covers far more of the 3d axes than one seen
+# face-on, so the axes is inflated by the reciprocal of the *worst* case.
+# Fitting the default view instead would leave the box clipped as soon as it
+# was dragged.
 #
-# Both numbers are closed-form maxima rather than the largest value on a
-# sampled sweep, which straddles the true extreme without ever landing on it.
-# mplot3d normalises any world to a box of aspect 4:4:3 and looks at it from a
-# fixed distance, so the widest view is down the z axis with the near face
-# turned corner-on, and the tallest looks along the box's own body diagonal,
-# whose direction sets elev = atan(4 * sqrt(2) / 3). Both worst cases are
+# Both are closed-form extremes rather than the largest value on a sampled
+# sweep, which straddles the true extreme without ever landing on it. mplot3d
+# normalises any world to a box of aspect 4:4:3 and looks at it from a fixed
+# distance, so the widest view is down the z axis with the near face turned
+# corner-on, and the tallest looks along the box's own body diagonal, whose
+# direction sets elev = atan(4 * sqrt(2) / 3). Both worst cases are
 # independent of the world's own shape, because of that normalisation.
 _WORST_VIEW_3D = ((90.0, 45.0), (62.0616, 45.0))        # widest, tallest
-_SCENE_FILL_3D = (0.9526, 1.0302)
+
+_scene_fill_3d_cache = None
+
+
+def _scene_fill_3d():
+    """How much of a 3d axes the world box covers, at its widest and tallest.
+
+    Measured from mplot3d's own projection rather than written down, because
+    the size of that box is a matplotlib detail that has moved: 3.8 scaled the
+    normalised box aspect up by 25/24, and under the default perspective
+    projection that enlargement is not a plain rescaling of the picture, so
+    both fractions grow, and by slightly different amounts.
+
+    The result is a property of mplot3d alone - it does not depend on the
+    world's shape, the figure size, or where the axes sits - so it is measured
+    once, off-screen, on a unit box.
+    """
+    global _scene_fill_3d_cache
+    if _scene_fill_3d_cache is None:
+        from matplotlib.figure import Figure
+        from mpl_toolkits.mplot3d import proj3d
+
+        fig = Figure()
+        ax = fig.add_axes((0.0, 0.0, 1.0, 1.0), projection="3d")
+        ax.set_xlim3d(0.0, 1.0)
+        ax.set_ylim3d(0.0, 1.0)
+        ax.set_zlim3d(0.0, 1.0)
+        corners = np.array([(x, y, z) for x in (0.0, 1.0)
+                            for y in (0.0, 1.0) for z in (0.0, 1.0)])
+
+        fill = np.zeros(2)
+        for elev, azim in _WORST_VIEW_3D:
+            ax.view_init(elev, azim)
+            x, y, _ = proj3d.proj_transform(corners[:, 0], corners[:, 1],
+                                            corners[:, 2], ax.get_proj())
+            drawn = ax.transData.transform(np.column_stack([x, y]))
+            span = drawn.max(axis=0) - drawn.min(axis=0)
+            fill = np.maximum(fill, span / [ax.bbox.width, ax.bbox.height])
+        _scene_fill_3d_cache = (float(fill[0]), float(fill[1]))
+    return _scene_fill_3d_cache
 
 
 def _inflate(rect, fx, fy):
@@ -66,8 +105,8 @@ def _unclipped(artist):
 
     Matplotlib squares off a 3d axes and clips its artists to that square,
     which is shorter than the box's own projection at a steep elevation; the
-    tip of the world would be sliced off mid-drag. ``_SCENE_FILL_3D`` is what
-    keeps the box inside the scene rectangle instead.
+    tip of the world would be sliced off mid-drag. :func:`_scene_fill_3d` is
+    what keeps the box inside the scene rectangle instead.
     """
     artist.set_clip_on(False)
     return artist
@@ -160,9 +199,9 @@ class Viewer:
             self.ax = self.fig.add_axes(_SCENE_RECT)
             self._build_axes_2d()
         else:
+            fill = _scene_fill_3d()
             self.ax = self.fig.add_axes(
-                _inflate(_SCENE_RECT, 1.0 / _SCENE_FILL_3D[0],
-                         1.0 / _SCENE_FILL_3D[1]),
+                _inflate(_SCENE_RECT, 1.0 / fill[0], 1.0 / fill[1]),
                 projection="3d")
             self._build_axes_3d()
         self._title = self.fig.text(x + 0.5 * w, y + h + 0.038, "",

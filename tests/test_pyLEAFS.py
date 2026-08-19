@@ -13,7 +13,7 @@ from matplotlib.animation import FuncAnimation                      # noqa: E402
 
 from pyLEAFS import (Grid, ResourceField, SpatialHash, Population,  # noqa: E402
                      Simulation, Viewer, palette)
-from pyLEAFS.viewer import _SCENE_FILL_3D, _WORST_VIEW_3D       # noqa: E402
+from pyLEAFS.viewer import _scene_fill_3d, _WORST_VIEW_3D       # noqa: E402
 
 
 # ----------------------------------------------------------------- Grid
@@ -426,7 +426,7 @@ def test_viewer_3d_box_stays_in_the_window_at_every_view_angle():
 
 
 def test_viewer_3d_fill_is_the_true_worst_case_over_all_view_angles():
-    # the fill constants must be the largest the box ever gets, or the window
+    # the measured fill must be the largest the box ever gets, or the window
     # is sized for a view the user can rotate straight past
     sim = Simulation.forager(seed=0, shape=(4, 4, 4))
     v = _viewer(sim)
@@ -439,8 +439,11 @@ def test_viewer_3d_fill_is_the_true_worst_case_over_all_view_angles():
         drawn = _scene_corners(v)
         span = drawn.max(axis=0) - drawn.min(axis=0)
         fill = np.maximum(fill, span / [box.width, box.height])
-    assert np.all(fill <= _SCENE_FILL_3D)                # nothing overflows
-    assert np.allclose(fill, _SCENE_FILL_3D, atol=5e-4)  # and nothing is lost
+    # the sweep repeats the worst-case projection, so it lands on the measured
+    # value to within pixel-transform rounding rather than under it
+    worst = np.array(_scene_fill_3d())
+    assert np.all(fill <= worst + 1e-9)         # nothing overflows
+    assert np.allclose(fill, worst, atol=5e-4)  # and nothing is lost
     plt.close(v.fig)
 
 

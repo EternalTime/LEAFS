@@ -65,6 +65,21 @@ Reference
    api/pyLEAFS
    license
 
+Citing
+^^^^^^
+
+Sowinski DR. *pyLEAFS* [computer software]. Version 0.1.0. 2026. Accessed July 21, 2026. https://github.com/EternalTime/LEAFS
+
+.. code-block:: bibtex
+
+   @software{sowinski_pyleafs,
+     author  = {Sowinski, Damian R.},
+     title   = {pyLEAFS: Layered Environment with Agents Foraging Simulator},
+     year    = {2026},
+     version = {0.1.0},
+     url     = {https://github.com/EternalTime/LEAFS}
+   }
+
 Indices and tables
 ==================
 

@@ -18,6 +18,8 @@ The viewer reads the simulation through its public attributes only; it never
 reaches into private buffers. The grid's ``D`` selects the axes it builds.
 """
 
+import functools
+
 import numpy as np
 
 from pyLEAFS import palette
@@ -53,9 +55,7 @@ _SCENE_RECT = (0.023, 0.021, 0.640, 0.879)
 # independent of the world's own shape, because of that normalisation.
 _WORST_VIEW_3D = ((90.0, 45.0), (62.0616, 45.0))        # widest, tallest
 
-_scene_fill_3d_cache = None
-
-
+@functools.lru_cache(maxsize=None)
 def _scene_fill_3d():
     """How much of a 3d axes the world box covers, at its widest and tallest.
 
@@ -69,29 +69,26 @@ def _scene_fill_3d():
     world's shape, the figure size, or where the axes sits - so it is measured
     once, off-screen, on a unit box.
     """
-    global _scene_fill_3d_cache
-    if _scene_fill_3d_cache is None:
-        from matplotlib.figure import Figure
-        from mpl_toolkits.mplot3d import proj3d
+    from matplotlib.figure import Figure
+    from mpl_toolkits.mplot3d import proj3d
 
-        fig = Figure()
-        ax = fig.add_axes((0.0, 0.0, 1.0, 1.0), projection="3d")
-        ax.set_xlim3d(0.0, 1.0)
-        ax.set_ylim3d(0.0, 1.0)
-        ax.set_zlim3d(0.0, 1.0)
-        corners = np.array([(x, y, z) for x in (0.0, 1.0)
-                            for y in (0.0, 1.0) for z in (0.0, 1.0)])
+    fig = Figure()
+    ax = fig.add_axes((0.0, 0.0, 1.0, 1.0), projection="3d")
+    ax.set_xlim3d(0.0, 1.0)
+    ax.set_ylim3d(0.0, 1.0)
+    ax.set_zlim3d(0.0, 1.0)
+    corners = np.array([(x, y, z) for x in (0.0, 1.0)
+                        for y in (0.0, 1.0) for z in (0.0, 1.0)])
 
-        fill = np.zeros(2)
-        for elev, azim in _WORST_VIEW_3D:
-            ax.view_init(elev, azim)
-            x, y, _ = proj3d.proj_transform(corners[:, 0], corners[:, 1],
-                                            corners[:, 2], ax.get_proj())
-            drawn = ax.transData.transform(np.column_stack([x, y]))
-            span = drawn.max(axis=0) - drawn.min(axis=0)
-            fill = np.maximum(fill, span / [ax.bbox.width, ax.bbox.height])
-        _scene_fill_3d_cache = (float(fill[0]), float(fill[1]))
-    return _scene_fill_3d_cache
+    fill = np.zeros(2)
+    for elev, azim in _WORST_VIEW_3D:
+        ax.view_init(elev, azim)
+        x, y, _ = proj3d.proj_transform(corners[:, 0], corners[:, 1],
+                                        corners[:, 2], ax.get_proj())
+        drawn = ax.transData.transform(np.column_stack([x, y]))
+        span = drawn.max(axis=0) - drawn.min(axis=0)
+        fill = np.maximum(fill, span / [ax.bbox.width, ax.bbox.height])
+    return (float(fill[0]), float(fill[1]))
 
 
 def _inflate(rect, fx, fy):

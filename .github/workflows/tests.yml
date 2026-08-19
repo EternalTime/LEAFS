@@ -4,9 +4,14 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    # pinned, not ubuntu-latest: no 3.8 or 3.9 build is published for the
+    # newer runner images, and both versions are supported here
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:

@@ -38,18 +38,39 @@ _HAZE_SIZE = (0.5, 1.1)         # marker size in points, same order
 _PANEL_WIDTH = 0.318
 _SCENE_RECT = (0.023, 0.021, 0.640, 0.879)
 
-# The widest and tallest a cube's projection ever gets, as a fraction of the 3d
-# axes it lives in, taken over every elevation and azimuth: a cube seen down a
-# body diagonal covers far more of the axes than one seen face-on, so the 3d
-# axes is inflated by the reciprocal of the *worst* case. Fitting the default
-# view instead would leave the box clipped as soon as it was dragged.
-_SCENE_FILL_3D = (0.953, 1.030)
+# The widest and tallest the world box's projection ever gets, as a fraction of
+# the 3d axes it lives in, taken over every elevation and azimuth: a box seen
+# down a body diagonal covers far more of the axes than one seen face-on, so
+# the 3d axes is inflated by the reciprocal of the *worst* case. Fitting the
+# default view instead would leave the box clipped as soon as it was dragged.
+#
+# Both numbers are closed-form maxima rather than the largest value on a
+# sampled sweep, which straddles the true extreme without ever landing on it.
+# mplot3d normalises any world to a box of aspect 4:4:3 and looks at it from a
+# fixed distance, so the widest view is down the z axis with the near face
+# turned corner-on, and the tallest looks along the box's own body diagonal,
+# whose direction sets elev = atan(4 * sqrt(2) / 3). Both worst cases are
+# independent of the world's own shape, because of that normalisation.
+_WORST_VIEW_3D = ((90.0, 45.0), (62.0616, 45.0))        # widest, tallest
+_SCENE_FILL_3D = (0.9526, 1.0302)
 
 
 def _inflate(rect, fx, fy):
     """Grow a ``(x, y, w, h)`` figure rectangle about its centre."""
     x, y, w, h = rect
     return (x - 0.5 * (fx - 1.0) * w, y - 0.5 * (fy - 1.0) * h, w * fx, h * fy)
+
+
+def _unclipped(artist):
+    """Let a 3d artist draw over the whole scene rectangle.
+
+    Matplotlib squares off a 3d axes and clips its artists to that square,
+    which is shorter than the box's own projection at a steep elevation; the
+    tip of the world would be sliced off mid-drag. ``_SCENE_FILL_3D`` is what
+    keeps the box inside the scene rectangle instead.
+    """
+    artist.set_clip_on(False)
+    return artist
 
 
 class Viewer:
@@ -212,9 +233,10 @@ class Viewer:
                 alpha=_HAZE_ALPHA[0] + near * (_HAZE_ALPHA[1] - _HAZE_ALPHA[0]),
                 color=palette.food_green,
             )
-            self._resource_bands.append(band)
+            self._resource_bands.append(_unclipped(band))
         self._trail_line, = self.ax.plot([], [], [], "-", lw=1.4,
                                          color=palette.brain_pink, alpha=0.9)
+        _unclipped(self._trail_line)
         # agents and the highlight ring are rebuilt per frame; see _draw_3d
         self._agent_scatter = None
         self._ring = None
@@ -360,20 +382,20 @@ class Viewer:
 
         if pop.count:
             frac = np.clip(pop.fuel / pop.s_max, 0.1, 1.0)
-            self._agent_scatter = self.ax.scatter(
+            self._agent_scatter = _unclipped(self.ax.scatter(
                 pop.pos[:, 0], pop.pos[:, 1], pop.pos[:, 2],
                 s=14 + 30 * frac, color=palette.motor_wine,
                 edgecolors=palette.sensor_mist, linewidths=0.6,
                 depthshade=False,
-            )
+            ))
 
         trail, selected = self._selection_trail(pop)
         if selected is not None:
-            self._ring = self.ax.scatter(
+            self._ring = _unclipped(self.ax.scatter(
                 [selected[0]], [selected[1]], [selected[2]], s=200,
                 facecolors="none", edgecolors=palette.sensor_mist, lw=2.0,
                 depthshade=False,
-            )
+            ))
         self._trail_line.set_data_3d(trail[:, 0], trail[:, 1], trail[:, 2])
 
     def _draw_haze(self, rpos):

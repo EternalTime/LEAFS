@@ -33,7 +33,13 @@ This file is the project's committed home for project-intrinsic agent knowledge:
   on the view angle: a cube seen down a body diagonal projects far larger than
   one seen face-on. Any layout that inflates the axes to fill the window must
   be sized for the worst case over all elevations and azimuths, or the first
-  drag clips the box. `pyLEAFS/viewer.py` records the measured fractions.
+  drag clips the box. Sweeping angles only straddles that worst case, so
+  `pyLEAFS/viewer.py` derives the fractions in closed form instead, from the
+  4:4:3 box mplot3d normalises every world to; the same normalisation makes
+  them independent of the world's own shape. Matplotlib also squares off a 3d
+  axes and clips its artists to that square, which is *shorter* than the box's
+  own projection at a steep elevation, so 3d artists need `set_clip_on(False)`
+  or the tip of the world is sliced off mid-drag.
 - A 3d world is far heavier than a 2d one of the same width: the default
   `shape=(10, 10, 10)` holds around 250k resources and booms to thousands of
   agents, and the per-agent Python loop in `Population._harvest` then dominates

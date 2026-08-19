@@ -13,6 +13,7 @@ from matplotlib.animation import FuncAnimation                      # noqa: E402
 
 from pyLEAFS import (Grid, ResourceField, SpatialHash, Population,  # noqa: E402
                      Simulation, Viewer, palette)
+from pyLEAFS.viewer import _SCENE_FILL_3D, _WORST_VIEW_3D       # noqa: E402
 
 
 # ----------------------------------------------------------------- Grid
@@ -375,6 +376,18 @@ def test_viewer_scene_fills_the_window(shape):
     plt.close(v.fig)
 
 
+def _view_angles():
+    """A sweep of view angles, plus the worst cases the sweep straddles."""
+    angles = [(float(elev), float(azim))
+              for elev in range(-90, 91, 15)
+              for azim in range(-180, 181, 15)]
+    return angles + [(se * elev, sa * azim + turn)
+                     for elev, azim in _WORST_VIEW_3D
+                     for se in (1.0, -1.0)
+                     for sa in (1.0, -1.0)
+                     for turn in (0.0, 180.0)]
+
+
 def test_viewer_3d_box_stays_in_the_window_at_every_view_angle():
     # the 3d axes is inflated to fill the window, and a cube's projection grows
     # by up to about a factor of sqrt(2) as it turns, so check the extremes
@@ -386,14 +399,59 @@ def test_viewer_3d_box_stays_in_the_window_at_every_view_angle():
     card = v._panel_text.get_bbox_patch().get_window_extent(
         v.fig.canvas.get_renderer())
 
-    for elev in range(-90, 91, 15):
-        for azim in range(-180, 181, 15):
-            v.ax.view_init(elev, azim)
-            drawn = _scene_corners(v)
-            x0, y0 = drawn.min(axis=0)
-            x1, y1 = drawn.max(axis=0)
-            where = "elev=%d azim=%d" % (elev, azim)
-            assert x0 >= 0 and y0 >= 0, where
-            assert x1 <= w and y1 <= h, where
-            assert x1 <= card.x0, where
+    for elev, azim in _view_angles():
+        v.ax.view_init(elev, azim)
+        drawn = _scene_corners(v)
+        x0, y0 = drawn.min(axis=0)
+        x1, y1 = drawn.max(axis=0)
+        where = "elev=%g azim=%g" % (elev, azim)
+        assert x0 >= 0 and y0 >= 0, where
+        assert x1 <= w and y1 <= h, where
+        assert x1 <= card.x0, where
+    plt.close(v.fig)
+
+
+def test_viewer_3d_fill_is_the_true_worst_case_over_all_view_angles():
+    # the fill constants must be the largest the box ever gets, or the window
+    # is sized for a view the user can rotate straight past
+    sim = Simulation.forager(seed=0, shape=(4, 4, 4))
+    v = _viewer(sim)
+    v.fig.canvas.draw()
+    box = v.ax.bbox
+
+    fill = np.array([0.0, 0.0])
+    for elev, azim in _view_angles():
+        v.ax.view_init(elev, azim)
+        drawn = _scene_corners(v)
+        span = drawn.max(axis=0) - drawn.min(axis=0)
+        fill = np.maximum(fill, span / [box.width, box.height])
+    assert np.all(fill <= _SCENE_FILL_3D)                # nothing overflows
+    assert np.allclose(fill, _SCENE_FILL_3D, atol=5e-4)  # and nothing is lost
+    plt.close(v.fig)
+
+
+def test_viewer_3d_draws_the_tip_of_the_box_at_the_worst_view_angle():
+    # matplotlib squares off a 3d axes, so at a steep elevation the box's own
+    # projection is taller than the axes: an agent in the highest corner must
+    # still be drawn, not sliced off at the edge of that square
+    sim = Simulation.forager(seed=0, shape=(4, 4, 4))
+    v = _viewer(sim)
+    v.paused = True
+    v.ax.view_init(*_WORST_VIEW_3D[1])
+
+    ext = sim.grid.extent
+    tip = _scene_corners(v)[:, 1].argmax()
+    corner = np.array(list(itertools.product(*[(0.0, e) for e in ext])))[tip]
+    corner = np.minimum(corner, ext - 1e-6)     # the far face wraps to zero
+    sim.populations[0].add(corner, heading=np.eye(3)[0], rng=sim.rng)
+    v._update(0)
+    v.fig.canvas.draw()
+
+    px, py = v._to_screen(corner.reshape(1, 3))[0]
+    assert py > v.ax.bbox.y1               # the corner really is off the axes
+    buf = np.asarray(v.fig.canvas.buffer_rgba())
+    row = buf.shape[0] - 1 - int(round(py))
+    patch = buf[row - 6:row + 7, int(round(px)) - 6:int(round(px)) + 7, :3]
+    off = np.abs(patch / 255.0 - palette.motor_wine).max(axis=2)
+    assert (off < 0.06).sum() > 10         # the agent's marker is really there
     plt.close(v.fig)

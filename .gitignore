@@ -22,3 +22,10 @@ docs/_build/
 # Output data
 *.npz
 *.h5
+
+# Local scratch notes
+/CLAUDE.md
+/AGENTS.md
+/SUMMARY.md
+/TASKS.md
+/INSTRUCTIONS.md

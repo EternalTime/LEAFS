@@ -80,13 +80,12 @@ one agent across steps.
 The controller
 --------------
 
-The map from what an agent senses to how it steers is named but not yet
-abstracted: in v1 it is the greedy rule, living in ``Population.step``. The
-neuroevolution layer splits it into a ``Controller``:
-a ``GreedyController`` and an ``RNNController`` - an Elman network with an
-evolvable genome and sensor array - chosen per population or per agent. Keeping
-the greedy logic self-contained makes that extraction a refactor of one method,
-not a redesign.
+The map from what an agent senses to how it steers is not yet abstracted: in v1
+it is the greedy rule, living in ``Population.step``. The neuroevolution layer
+splits it into a ``Controller``: a ``GreedyController`` and an
+``RNNController`` - an Elman network with an evolvable genome and sensor
+array - chosen per population or per agent. Keeping the greedy logic
+self-contained makes that extraction a refactor of one method, not a redesign.
 
 Adding a layer
 --------------

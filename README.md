@@ -21,10 +21,10 @@ python -m pip install --upgrade pip
 pip install -e .
 ```
 
-Requires Python 3.8+ (tested on 3.8 through 3.14); numpy and matplotlib come
-with it. The virtual environment is what makes `pip` available and keeps the
-install out of a system Python that may refuse it, so activate it in every new
-terminal. The [Getting Started
+Requires Python 3.8+ (tested on 3.8 through 3.14); numpy and matplotlib are
+installed automatically. The virtual environment is what makes `pip` available
+and keeps the install out of a system Python that may refuse it, so activate it
+in every new terminal. The [Getting Started
 guide](https://damiansowinski.com/LEAFS/getting_started.html) is the authority
 on installation and carries the same steps.
 

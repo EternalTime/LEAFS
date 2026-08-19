@@ -2,9 +2,9 @@
 
 A dimension-agnostic (2d or 3d) agent-based foraging model built on a
 struct-of-arrays NumPy layout. The first version is a single-species greedy
-forager on a replenishing Poisson resource field; later layers (pheromone
-fields, predators, heterogeneous environments, neuroevolution) attach through
-the extension seams in the core.
+forager on a replenishing Poisson resource field. Pheromone fields, predators,
+heterogeneous environments, and neuroevolution are later layers that attach to
+it.
 
 Modules
 -------

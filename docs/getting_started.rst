@@ -14,9 +14,9 @@ Installation
    pip install -e .
 
 pyLEAFS requires Python 3.8+ (tested on 3.8 through 3.14); numpy and matplotlib
-come with it. Activate the virtual environment in every new terminal: it makes
-``pip`` available and keeps the install out of a system Python that may refuse
-it.
+are installed automatically. Activate the virtual environment in every new
+terminal: it makes ``pip`` available and keeps the install out of a system
+Python that may refuse it.
 
 Building these docs
 -------------------

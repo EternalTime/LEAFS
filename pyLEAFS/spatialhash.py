@@ -1,6 +1,6 @@
 """Generic spatial hash over a point set.
 
-A :class:`SpatialHash` buckets an arbitrary ``(n, D)` set of points into the
+A :class:`SpatialHash` buckets an arbitrary ``(n, D)`` set of points into the
 regions of a shared :class:`Grid`, then answers Moore-neighbourhood queries.
 It is deliberately agnostic about what the points are --- resources, foragers,
 predators --- so the same structure serves every layer. Unlike the resource

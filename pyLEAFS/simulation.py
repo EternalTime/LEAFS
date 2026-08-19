@@ -97,10 +97,11 @@ class Simulation:
 
         .. math::
 
-            \\epsilon = \\Gamma / \\big((\\Xi / r_\\mathrm{col})^2\\,\\gamma\\big),
+            \\epsilon = \\Gamma / \\big((\\Xi / r_\\mathrm{col})^{D}\\,\\gamma\\big),
 
-        so that the equilibrium resource density rises as ``Xi`` rises (a more
-        homogeneous field of many lean resources). Remaining parameters match
+        with ``D`` the grid dimension, so that the equilibrium resource density
+        is ``(Xi / r_collect) ** D`` and the mean resource spacing is
+        ``r_collect / Xi`` in both 2d and 3d. Remaining parameters match
         the applet: ``mu0=0.1``, ``dt=0.02``, ``v=20``, ``R_sense=6``,
         ``r_collect=1``, ``s_max=1``, reproduction at ``0.8`` with the daughter
         budded ``r_collect`` away.
@@ -126,8 +127,8 @@ class Simulation:
         rng = np.random.default_rng(seed)
         L, dt = 10.0, 0.02
         Gamma, gamma, r_collect = 0.001, 0.1, 1.0
-        epsilon = Gamma / ((Xi / r_collect) ** 2 * gamma)
         grid = Grid(shape, L=L)
+        epsilon = Gamma / ((Xi / r_collect) ** grid.D * gamma)
         resource = ResourceField(grid, Gamma=Gamma, gamma=gamma, epsilon=epsilon, dt=dt)
         resource.seed(rng)
         pop = Population(

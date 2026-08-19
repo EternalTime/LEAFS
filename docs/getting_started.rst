@@ -126,11 +126,11 @@ means this:
   centre of the world box.
 
 A 3d world holds far more resources than a 2d one of the same width - the
-default ``shape=(10, 10, 10)`` carries a quarter of a million of them - so the
-field is drawn as a translucent haze that fades with distance, letting you see
-the agents through the volume instead of only those on the near face. That
-same abundance makes each frame slower than in 2d; a smaller ``shape`` or a
-smaller ``Xi`` keeps it brisk.
+default ``shape=(10, 10, 10)`` carries about 125,000 of them - so the field is
+drawn as a translucent haze that fades with distance, letting you see the
+agents through the volume instead of only those on the near face. That same
+abundance makes each frame slower than in 2d; a smaller ``shape`` or a smaller
+``Xi`` keeps it brisk.
 
 Reproducibility
 ---------------

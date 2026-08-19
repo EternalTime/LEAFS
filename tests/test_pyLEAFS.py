@@ -140,11 +140,25 @@ def test_forager_population_is_sustainable():
 
 
 def test_homogeneity_sets_resource_density():
-    # epsilon is derived from Xi so that N_eq per region = (Xi/r_col)^2 * L^2.
+    # epsilon is derived from Xi so that N_eq per region = (Xi/r_col)^D * L^D.
     s = Simulation.forager(seed=0, Xi=0.5)            # -> 0.25 * 100 = 25
     assert s.fields[0].N_eq == pytest.approx(25.0)
     s2 = Simulation.forager(seed=0, Xi=1.0)           # -> 1.0 * 100 = 100
     assert s2.fields[0].N_eq == pytest.approx(100.0)
+
+
+@pytest.mark.parametrize("shape", [(10, 10), (10, 10, 10)])
+@pytest.mark.parametrize("Xi", [0.3, 0.5, 1.0])
+def test_homogeneity_exponent_follows_the_dimension(shape, Xi):
+    # Theory: Xi is r_col over the mean resource spacing, so the equilibrium
+    # number density is (Xi/r_col)^D in any dimension, not just 2d.
+    sim = Simulation.forager(seed=0, shape=shape, Xi=Xi)
+    field, D, r_collect = sim.fields[0], sim.grid.D, 1.0
+    density = field.Gamma / (field.epsilon * field.gamma)
+    assert density == pytest.approx((Xi / r_collect) ** D)
+    assert field.N_eq == pytest.approx(density * sim.grid.L ** D)
+    spacing = density ** (-1.0 / D)
+    assert spacing == pytest.approx(r_collect / Xi)
 
 
 def test_reproduction_increases_population():

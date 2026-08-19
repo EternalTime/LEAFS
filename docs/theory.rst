@@ -10,8 +10,8 @@ The resource field
 ------------------
 
 Resources are energy quanta scattered through a :math:`D`-dimensional toroidal
-box as a Poisson point process. In each region of the grid, one timestep of
-duration :math:`dt` births and kills them stochastically:
+box and treated as a Poisson point process. In each region of the grid, one
+timestep of duration :math:`dt` births and kills them stochastically:
 
 .. math::
 
@@ -21,10 +21,10 @@ duration :math:`dt` births and kills them stochastically:
 where :math:`\Gamma` is the energy influx per unit volume, :math:`\gamma` the
 resource decay rate, :math:`\epsilon` the energy carried by one resource, and
 :math:`L` the region side length. Births place a resource uniformly in the
-region and deaths remove uniformly chosen ones; both counts come from two
-vectorized calls per step, with the grow/decay order randomized per region to
-avoid bias. The ``ResourceField`` is the struct-of-arrays descendant of the
-MATLAB ``Region``/``Environment`` pair.
+region and deaths remove uniformly chosen ones; both counts for every region
+come from two vectorized calls per step, with the grow/decay order randomized
+per region to avoid bias. The ``ResourceField`` is the struct-of-arrays
+descendant of the MATLAB ``Region``/``Environment`` pair.
 
 With no agents present the field relaxes to an equilibrium count per region
 
@@ -166,6 +166,6 @@ Everything marked *(later layer)* attaches to the v1 core described in
 the field list, predators and trophic levels as additional populations in the
 step loop, a heterogeneous environment with spatially varying :math:`\Gamma`,
 neuroevolution replacing the greedy rule with an evolvable recurrent controller
-and sensor array under mutation and selection, a chemoton with internal
-metabolism in place of the single basal term, and the information-theoretic
+and sensor array under mutation and selection, a chemoton - internal
+metabolism - in place of the single basal term, and the information-theoretic
 observables: semantic information, mutual information, and transfer entropy.

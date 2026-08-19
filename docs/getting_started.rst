@@ -74,8 +74,9 @@ there. The viewer targets two-dimensional worlds.
 The homogeneity knob
 ---------------------
 
-The dimensionless homogeneity :math:`\Xi` fixes the energy per resource, and
-with it how patchy or uniform the field is:
+A single dimensionless parameter controls the environment. The homogeneity
+:math:`\Xi` fixes the energy per resource, and with it how patchy or uniform
+the field is:
 
 .. code-block:: python
 

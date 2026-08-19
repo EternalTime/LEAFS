@@ -99,10 +99,11 @@ class Simulation:
 
             \\epsilon = \\Gamma / \\big((\\Xi / r_\\mathrm{col})^2\\,\\gamma\\big),
 
-        so that the equilibrium resource density rises as ``Xi`` falls (a more
-        homogeneous field). Remaining parameters match the applet: ``mu0=0.1``,
-        ``dt=0.02``, ``v=20``, ``R_sense=6``, ``r_collect=1``, ``s_max=1``,
-        reproduction at ``0.8`` with the daughter budded ``r_collect`` away.
+        so that the equilibrium resource density rises as ``Xi`` rises (a more
+        homogeneous field of many lean resources). Remaining parameters match
+        the applet: ``mu0=0.1``, ``dt=0.02``, ``v=20``, ``R_sense=6``,
+        ``r_collect=1``, ``s_max=1``, reproduction at ``0.8`` with the daughter
+        budded ``r_collect`` away.
 
         Parameters
         ----------

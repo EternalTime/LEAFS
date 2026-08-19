@@ -6,11 +6,9 @@ development of sensors and information-processing behavior. The core is
 dimension-agnostic (2d or 3d) and built on a struct-of-arrays NumPy layout.
 
 This first version is a single-species greedy forager on a replenishing Poisson
-resource field. Later layers (pheromone fields, predators, heterogeneous
-environments, neuroevolution) are add-ons enabled by the extension seams in the
-core.
-
-The original MATLAB classes live in `matlab/`.
+resource field. Pheromone fields, predators, heterogeneous environments, and
+neuroevolution are later layers that attach to that core. The original MATLAB
+classes live in `matlab/`.
 
 ## Installation
 
@@ -25,11 +23,10 @@ pip install -e .
 
 Requires Python 3.8+ (tested on 3.8 through 3.14); numpy and matplotlib are
 installed automatically. The virtual environment is what makes `pip` available
-and keeps the install out of a system Python that may refuse it; activate it in
-every new terminal before running any of the commands below.
-
-The [Getting Started guide](https://damiansowinski.com/LEAFS/getting_started.html)
-is the authority on installation and carries the same steps.
+and keeps the install out of a system Python that may refuse it, so activate it
+in every new terminal. The [Getting Started
+guide](https://damiansowinski.com/LEAFS/getting_started.html) is the authority
+on installation and carries the same steps.
 
 ## Quick start
 
@@ -54,11 +51,8 @@ Viewer(sim).play()
 
 ## Documentation
 
-The documentation is hosted at
-[damiansowinski.com/LEAFS](https://damiansowinski.com/LEAFS/) (or run
-`import pyLEAFS; pyLEAFS.docs()` to open it); the guides cover getting started,
-the model the code implements, and the core architecture with its extension
-seams. To build it locally:
+The docs live at [damiansowinski.com/LEAFS](https://damiansowinski.com/LEAFS/),
+or run `import pyLEAFS; pyLEAFS.docs()` to open them. To build them locally:
 
 ```bash
 source .venv/bin/activate

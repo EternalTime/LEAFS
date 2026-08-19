@@ -7,8 +7,8 @@ dimension-agnostic (2d or 3d) and built on a struct-of-arrays NumPy layout.
 
 This first version is a single-species greedy forager on a replenishing Poisson
 resource field. Pheromone fields, predators, heterogeneous environments, and
-neuroevolution are later layers that attach to that core. The original MATLAB
-classes live in `matlab/`.
+neuroevolution are later layers that attach to that core. This repository holds
+the Python port only; the original MATLAB classes are not included.
 
 ## Installation
 

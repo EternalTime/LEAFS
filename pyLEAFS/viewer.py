@@ -308,7 +308,10 @@ class Viewer:
         """Projected depth of world positions ``(n, 3)``; smaller is nearer."""
         M = self.ax.get_proj()
         v = np.column_stack([pos, np.ones(len(pos))])
-        return (v @ M[2]) / (v @ M[3])
+        # einsum, not @: numpy 2.0 on Apple Accelerate leaves stale floating
+        # point flags behind after a large matmul, which then surface as bogus
+        # divide, overflow and invalid-value warnings
+        return np.einsum("ij,j->i", v, M[2]) / np.einsum("ij,j->i", v, M[3])
 
     def _screen_tolerance(self):
         """``select_radius`` in pixels, measured at the centre of the box."""

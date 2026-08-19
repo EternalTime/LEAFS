@@ -28,8 +28,7 @@ neuroevolution, the heterogeneous environments, the predators, and the
 information-theoretic measures are layers still to be added; the core
 (:doc:`guide_core`) is structured to receive them.
 
-The science behind the model is developed in three papers, preserved in the
-project's ``Papers/`` directory:
+The science behind the model is developed in three papers:
 
 - Sowinski, Carroll-Nellenback, Markwick, Pinero, Gleiser, Kolchinsky, Ghoshal,
   Frank, *Semantic Information in a Model of Resource Gathering Agents*, PRX Life
@@ -43,8 +42,7 @@ project's ``Papers/`` directory:
 
 If you are new here, start with :doc:`getting_started`, then read
 :doc:`theory` for the model the code implements and :doc:`guide_core` for the
-architecture and how new layers attach. The original MATLAB classes are
-preserved in the repository's ``matlab/`` directory.
+architecture and how new layers attach.
 
 Guide
 ^^^^^

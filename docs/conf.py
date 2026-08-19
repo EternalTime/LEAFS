@@ -16,6 +16,9 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
+copybutton_prompt_text = r'>>> '
+copybutton_prompt_is_regexp = True
+
 templates_path = []
 exclude_patterns = ['_build']
 

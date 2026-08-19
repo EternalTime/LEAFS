@@ -148,7 +148,7 @@ class Viewer:
     def _build_figure(self):
         """Create the figure, the axes, the artists, and the event hooks."""
         import matplotlib.pyplot as plt
-        # also registers the '3d' projection on matplotlib < 3.2
+        # registers the '3d' projection without relying on a lazy import
         import mpl_toolkits.mplot3d                                # noqa: F401
 
         self.fig = plt.figure(figsize=(8.9, 7.0))

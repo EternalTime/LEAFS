@@ -10,11 +10,15 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 - The published site is `damiansowinski.com/LEAFS/` (built from `docs/`).
   `damiansowinski.com/pyLEAFS/` is a 404.
 - Supported interpreters are Python 3.8 through 3.14, verified by running the
-  suite on each. The floor is set by the build backend (`setuptools>=61`,
-  `requires-python >=3.7`), not by the code, which needs only
-  `numpy>=1.17` (`np.random.default_rng`) and `matplotlib>=3.1`
-  (`FuncAnimation(cache_frame_data=...)`); both bounds are declared in
-  `pyproject.toml`.
+  suite on each. That floor is set by the build backend (`setuptools>=61`,
+  `requires-python >=3.7`), not by the code, which needs `numpy>=1.17`
+  (`np.random.default_rng`) and `matplotlib>=3.3`; both bounds are declared in
+  `pyproject.toml`. The matplotlib bound is the 3d viewer's: `pb_aspect` in
+  `proj3d.world_transformation` and the 2d `box_aspect` that squares an
+  `Axes3D` both arrive in 3.3, and the scene-fill constants are derived from
+  exactly that geometry, so 3.1 and 3.2 would lay the window out for a shape
+  they never draw. It costs no interpreter - matplotlib 3.3 is from 2020 and
+  ships wheels for Python 3.8.
 - Docs prose uses a matched pair of spaced regular dashes ( - ), never `---`,
   which Sphinx smartquotes renders as an em dash. `sphinx-build -n` surfaces
   unresolved `:class:` targets because the classes are documented under their

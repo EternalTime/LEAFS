@@ -1,9 +1,17 @@
 """Tests pinning the physics and bookkeeping of pyLEAFS v1."""
 
+from types import SimpleNamespace
+
+import matplotlib
 import numpy as np
 import pytest
 
-from pyLEAFS import Grid, ResourceField, SpatialHash, Population, Simulation
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt                                     # noqa: E402
+from matplotlib.animation import FuncAnimation                      # noqa: E402
+
+from pyLEAFS import (Grid, ResourceField, SpatialHash, Population,  # noqa: E402
+                     Simulation, Viewer)
 
 
 # ----------------------------------------------------------------- Grid
@@ -147,3 +155,133 @@ def test_reproduction_increases_population():
     pop._reproduce(rng)
     assert pop.count == n_before + 1
     assert pop.offspring[0] == 1
+
+
+# ------------------------------------------------------------- Viewer
+def _viewer(sim, **kw):
+    """Build a viewer's figure on the Agg backend, without showing it."""
+    v = Viewer(sim, **kw)
+    v._build_figure()
+    v.fig.canvas.draw()                # fixes the projection used by picking
+    return v
+
+
+def _world(shape, agents):
+    """A small deterministic world with agents at the given positions."""
+    rng = np.random.default_rng(0)
+    g = Grid(shape, L=10.0)
+    rf = ResourceField(g, Gamma=0.001, gamma=0.1, epsilon=0.04, dt=0.02)
+    rf.seed(rng)
+    pop = Population(g, v=20.0, dt=0.02, r_collect=1.0, R_sense=6.0,
+                     mu0=0.1, s_max=1.0)
+    for p in agents:
+        pop.add(p, heading=np.eye(g.D)[0])
+    return Simulation(g, [rf], [pop], dt=0.02, rng=rng)
+
+
+def test_viewer_rejects_other_dimensions():
+    fake = SimpleNamespace(grid=SimpleNamespace(D=4))
+    with pytest.raises(ValueError, match="D = 4"):
+        Viewer(fake)
+
+
+@pytest.mark.parametrize("shape", [(5, 5), (4, 4, 4)])
+def test_viewer_animates_frames(shape, monkeypatch):
+    monkeypatch.setattr(plt, "show", lambda *a, **kw: None)
+    sim = Simulation.forager(seed=0, shape=shape)
+    v = Viewer(sim)
+    v.play()                          # builds the window and the animation
+    assert isinstance(v._anim, FuncAnimation)
+
+    v.selected_id = int(sim.populations[0].ids[0])
+    before = sim.step_count
+    for frame in range(3):
+        v._update(frame)
+        v.fig.canvas.draw()
+    assert sim.step_count >= before + 3 * v.steps_per_frame
+    assert "t = " in v._title.get_text()
+    plt.close(v.fig)
+
+
+def test_viewer_2d_click_selects_then_adds():
+    sim = _world((5, 5), [[10.0, 10.0], [40.0, 40.0]])
+    pop = sim.populations[0]
+    v = _viewer(sim)
+
+    v._on_click(SimpleNamespace(inaxes=v.ax, xdata=40.5, ydata=40.0))
+    assert v.selected_id == 1
+
+    v._on_click(SimpleNamespace(inaxes=v.ax, xdata=25.0, ydata=25.0))
+    assert v.selected_id is None
+    assert pop.count == 3
+    assert np.allclose(pop.pos[2], [25.0, 25.0])
+    plt.close(v.fig)
+
+
+def test_viewer_3d_pick_selects_nearest_agent_within_tolerance():
+    sim = _world((4, 4, 4), [[5.0, 5.0, 5.0], [35.0, 5.0, 35.0]])
+    v = _viewer(sim)
+    px, py = v._to_screen(sim.populations[0].pos[1:2])[0]
+
+    v._pick(px, py)
+    assert v.selected_id == 1
+
+    # a pick just inside the screen tolerance still selects the same agent
+    v.selected_id = None
+    v._pick(px + 0.5 * v._screen_tolerance(), py)
+    assert v.selected_id == 1
+    plt.close(v.fig)
+
+
+def test_viewer_3d_pick_in_empty_space_adds_agent_at_centre_depth():
+    sim = _world((4, 4, 4), [[5.0, 5.0, 5.0], [35.0, 5.0, 35.0]])
+    pop = sim.populations[0]
+    v = _viewer(sim)
+    centre = 0.5 * sim.grid.extent
+    px, py = v._to_screen(centre.reshape(1, 3))[0]
+    # the existing agents must be nowhere near that pixel for this to be a miss
+    assert np.linalg.norm(v._to_screen(pop.pos) - [px, py],
+                          axis=1).min() > v._screen_tolerance()
+
+    v._pick(px, py)
+    assert pop.count == 3
+    assert np.allclose(pop.pos[2], centre)
+    assert v.selected_id is None
+
+    # off-centre pixels land on the same depth plane, still inside the box
+    px2, py2 = px + 40.0, py - 25.0
+    v._pick(px2, py2)
+    assert pop.count == 4
+    added = pop.pos[3]
+    assert np.all(added >= 0.0) and np.all(added <= sim.grid.extent)
+    assert np.allclose(v._to_screen(added.reshape(1, 3))[0], [px2, py2])
+    plt.close(v.fig)
+
+
+def test_viewer_3d_rotating_drag_is_not_a_pick():
+    sim = _world((4, 4, 4), [[5.0, 5.0, 5.0], [35.0, 5.0, 35.0]])
+    pop = sim.populations[0]
+    v = _viewer(sim)
+    px, py = v._to_screen(pop.pos[1:2])[0]
+
+    v._on_press(SimpleNamespace(inaxes=v.ax, button=1, x=px, y=py))
+    v._on_release(SimpleNamespace(inaxes=v.ax, button=1, x=px + 60, y=py + 40))
+    assert v.selected_id is None and pop.count == 2
+
+    v._on_press(SimpleNamespace(inaxes=v.ax, button=1, x=px, y=py))
+    v._on_release(SimpleNamespace(inaxes=v.ax, button=1, x=px + 1, y=py))
+    assert v.selected_id == 1
+    plt.close(v.fig)
+
+
+def test_viewer_3d_spacebar_pauses():
+    sim = Simulation.forager(seed=0, shape=(4, 4, 4))
+    v = _viewer(sim)
+    v._on_key(SimpleNamespace(key=" "))
+    assert v.paused
+    v._update(0)
+    assert sim.step_count == 0
+    v._on_key(SimpleNamespace(key=" "))
+    v._update(1)
+    assert sim.step_count == v.steps_per_frame
+    plt.close(v.fig)

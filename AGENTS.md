@@ -19,7 +19,18 @@ This file is the project's committed home for project-intrinsic agent knowledge:
   which Sphinx smartquotes renders as an em dash. `sphinx-build -n` surfaces
   unresolved `:class:` targets because the classes are documented under their
   module paths, not the package root; the one non-nitpick warning comes from the
-  `pyLEAFS/spatialhash.py` docstring and predates this note.
+  `pyLEAFS/spatialhash.py` docstring and predates this note. In a docstring, a
+  section header napoleon does not know (`Controls`, say) placed *before*
+  `Parameters` silently breaks the whole parameter block into raw `:param:`
+  text, so keep custom sections last and check the built HTML, not just the
+  warning count.
+- Anything that renders must run on the Agg backend: the tests select it at
+  import, and an interactive window on the maintainer's machine steals focus.
+- A 3d world is far heavier than a 2d one of the same width: the default
+  `shape=(10, 10, 10)` holds around 250k resources and booms to thousands of
+  agents, and the per-agent Python loop in `Population._harvest` then dominates
+  wall-clock time by an order of magnitude over drawing. Profile the step loop,
+  not the viewer, and use a smaller `shape` or `Xi` for quick 3d checks.
 
 ## Maintaining this file
 

@@ -49,6 +49,17 @@ sim = Simulation.forager(seed=0)
 Viewer(sim).play()
 ```
 
+The viewer follows the world it is given, so a 3d simulation opens in a
+rotatable box with the same controls:
+
+```python
+Viewer(Simulation.forager(seed=0, shape=(10, 10, 10))).play()
+```
+
+In 3d, left-drag rotates the view and a click that does not move it picks: it
+selects the agent nearest the line of sight, or, if none is close enough, adds
+one on that line at the depth of the centre of the box.
+
 ## Documentation
 
 The docs live at [damiansowinski.com/LEAFS](https://damiansowinski.com/LEAFS/),

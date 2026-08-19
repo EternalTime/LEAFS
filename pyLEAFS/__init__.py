@@ -19,7 +19,8 @@ population
 simulation
     Multi-population step loop and parameter factories.
 viewer
-    Interactive matplotlib viewer (pause, add agents, inspect).
+    Interactive matplotlib viewer for 2d and 3d worlds (pause, add agents,
+    inspect).
 palette
     Named RGB colours for LEAFS visualisation.
 """

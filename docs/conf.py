@@ -17,7 +17,7 @@ extensions = [
     'sphinx_copybutton',
 ]
 
-copybutton_prompt_text = r'>>> '
+copybutton_prompt_text = r'>>> |\.\.\. '
 copybutton_prompt_is_regexp = True
 
 templates_path = []

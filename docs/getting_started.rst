@@ -14,9 +14,9 @@ Installation
    pip install -e .
 
 pyLEAFS requires Python 3.8+ (tested on 3.8 through 3.14); numpy and matplotlib
-are installed automatically. The virtual environment is what makes ``pip``
-available and keeps the install out of a system Python that may refuse it;
-activate it in every new terminal before running any of the commands below.
+are installed automatically. Activate the virtual environment in every new
+terminal: it makes ``pip`` available and keeps the install out of a system
+Python that may refuse it.
 
 Building these docs
 -------------------
@@ -32,9 +32,8 @@ The rendered pages land in ``docs/_build/html``.
 A first simulation
 -------------------
 
-The :meth:`~pyLEAFS.Simulation.forager` factory builds the v1 world --- one
-resource field, one greedy-forager population --- with the parameters of the
-``forager`` applet:
+:meth:`~pyLEAFS.Simulation.forager` builds the v1 world - one resource field,
+one greedy-forager population - with the parameters of the ``forager`` applet:
 
 .. code-block:: python
 
@@ -51,7 +50,7 @@ resource field, one greedy-forager population --- with the parameters of the
 Watching it live
 ----------------
 
-The :class:`~pyLEAFS.Viewer` opens an interactive matplotlib window:
+:class:`~pyLEAFS.Viewer` opens an interactive matplotlib window:
 
 .. code-block:: python
 
@@ -75,9 +74,9 @@ there. The viewer targets two-dimensional worlds.
 The homogeneity knob
 ---------------------
 
-The environment is controlled by a single dimensionless parameter, the
-homogeneity :math:`\Xi`. It sets how patchy or uniform the resource field is by
-fixing the energy per resource:
+A single dimensionless parameter controls the environment. The homogeneity
+:math:`\Xi` fixes the energy per resource, and with it how patchy or uniform
+the field is:
 
 .. code-block:: python
 
@@ -88,12 +87,12 @@ fixing the energy per resource:
    print(dense.fields[0].N_eq)
 
 Larger :math:`\Xi` means a more homogeneous world with more, lower-energy
-resources. See :doc:`theory` for the definition and its role in the model.
+resources. See :doc:`theory` for the definition and its role.
 
 Two or three dimensions
 -----------------------
 
-The core is dimension-agnostic. The length of the grid ``shape`` selects the
+The core is dimension-agnostic, and the length of the grid ``shape`` selects the
 dimension:
 
 .. code-block:: python
@@ -103,14 +102,14 @@ dimension:
 
    solid.run(500)
 
-The :class:`~pyLEAFS.Viewer` renders 2d worlds; 3d runs are headless for now.
+:class:`~pyLEAFS.Viewer` renders 2d worlds; 3d runs are headless for now.
 
 Reproducibility
 ---------------
 
-Every stochastic part of the simulation draws from a single
-``numpy.random.Generator`` threaded through from the seed. Two runs built with
-the same ``seed`` produce identical histories:
+One ``numpy.random.Generator``, threaded through from the seed, feeds every
+stochastic part of the simulation, so two runs with the same ``seed`` produce
+identical histories:
 
 .. code-block:: python
 

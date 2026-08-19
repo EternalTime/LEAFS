@@ -15,6 +15,11 @@ This file is the project's committed home for project-intrinsic agent knowledge:
   `numpy>=1.17` (`np.random.default_rng`) and `matplotlib>=3.1`
   (`FuncAnimation(cache_frame_data=...)`); both bounds are declared in
   `pyproject.toml`.
+- Docs prose uses a matched pair of spaced regular dashes ( - ), never `---`,
+  which Sphinx smartquotes renders as an em dash. `sphinx-build -n` surfaces
+  unresolved `:class:` targets because the classes are documented under their
+  module paths, not the package root; the one non-nitpick warning comes from the
+  `pyLEAFS/spatialhash.py` docstring and predates this note.
 
 ## Maintaining this file
 

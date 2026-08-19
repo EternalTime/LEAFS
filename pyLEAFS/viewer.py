@@ -26,6 +26,31 @@ from pyLEAFS import palette
 # drag; anything larger in 3d is the axes' own rotation gesture.
 _CLICK_SLOP_PX = 3.0
 
+# In 3d the resource field is split into this many equal-count depth bands,
+# each drawn as its own translucent layer, so the volume reads as haze with
+# distance rather than as an opaque wall of near points.
+_HAZE_BANDS = 8
+_HAZE_ALPHA = (0.04, 0.32)      # farthest band, nearest band
+_HAZE_SIZE = (0.5, 1.1)         # marker size in points, same order
+
+# Layout, in figure fractions: the side panel is only as wide as its monospace
+# text and the scene fills everything else.
+_PANEL_WIDTH = 0.318
+_SCENE_RECT = (0.023, 0.021, 0.640, 0.879)
+
+# The widest and tallest a cube's projection ever gets, as a fraction of the 3d
+# axes it lives in, taken over every elevation and azimuth: a cube seen down a
+# body diagonal covers far more of the axes than one seen face-on, so the 3d
+# axes is inflated by the reciprocal of the *worst* case. Fitting the default
+# view instead would leave the box clipped as soon as it was dragged.
+_SCENE_FILL_3D = (0.953, 1.030)
+
+
+def _inflate(rect, fx, fy):
+    """Grow a ``(x, y, w, h)`` figure rectangle about its centre."""
+    x, y, w, h = rect
+    return (x - 0.5 * (fx - 1.0) * w, y - 0.5 * (fy - 1.0) * h, w * fx, h * fy)
+
 
 class Viewer:
     """An interactive viewer for a :class:`~pyLEAFS.simulation.Simulation`.
@@ -102,23 +127,36 @@ class Viewer:
     def _build_figure(self):
         """Create the figure, the axes, the artists, and the event hooks."""
         import matplotlib.pyplot as plt
+        # also registers the '3d' projection on matplotlib < 3.2
+        import mpl_toolkits.mplot3d                                # noqa: F401
 
-        self.fig = plt.figure(figsize=(11, 6))
-        gs = self.fig.add_gridspec(1, 2, width_ratios=[3, 1])
-        self.panel = self.fig.add_subplot(gs[0, 1])
+        self.fig = plt.figure(figsize=(8.9, 7.0))
+        self.fig.patch.set_facecolor(palette.background)
         self.fig.canvas.manager.set_window_title("pyLEAFS")
 
+        x, y, w, h = _SCENE_RECT
         if self.D == 2:
-            self.ax = self.fig.add_subplot(gs[0, 0])
+            self.ax = self.fig.add_axes(_SCENE_RECT)
             self._build_axes_2d()
         else:
-            self.ax = self.fig.add_subplot(gs[0, 0], projection="3d")
+            self.ax = self.fig.add_axes(
+                _inflate(_SCENE_RECT, 1.0 / _SCENE_FILL_3D[0],
+                         1.0 / _SCENE_FILL_3D[1]),
+                projection="3d")
             self._build_axes_3d()
-        self._title = self.ax.set_title("", color="white")
+        self._title = self.fig.text(x + 0.5 * w, y + h + 0.038, "",
+                                    ha="center", va="center", fontsize=11,
+                                    color=palette.sensor_mist)
 
+        self.panel = self.fig.add_axes([1.0 - _PANEL_WIDTH, 0.0,
+                                        _PANEL_WIDTH, 1.0])
+        self.panel.set_facecolor(palette.background)
         self.panel.axis("off")
         self._panel_text = self.panel.text(
-            0.0, 1.0, "", va="top", ha="left", family="monospace", fontsize=9
+            0.0, y + h, "", va="top", ha="left", family="monospace",
+            fontsize=8, color=palette.sensor_mist,
+            bbox=dict(boxstyle="round,pad=0.6", facecolor=palette.abyss_blue,
+                      edgecolor=palette.sensor_slate, linewidth=0.8),
         )
 
         self.fig.canvas.mpl_connect("key_press_event", self._on_key)
@@ -136,6 +174,8 @@ class Viewer:
         self.ax.set_aspect("equal")
         self.ax.set_xticks([])
         self.ax.set_yticks([])
+        for spine in self.ax.spines.values():
+            spine.set_color(palette.sensor_slate)
 
         # artists, created empty and updated in place
         self._resource_scatter = self.ax.scatter([], [], s=18, marker="*",
@@ -155,16 +195,25 @@ class Viewer:
         self.ax.set_zlim(0, ext[2])
         for axis in (self.ax.xaxis, self.ax.yaxis, self.ax.zaxis):
             axis.set_pane_color(palette.background + (1.0,))
+            axis.line.set_color(palette.sensor_slate)
         self.ax.set_xticks([])
         self.ax.set_yticks([])
         self.ax.set_zticks([])
 
-        # A marker-only Line3D draws the whole resource field an order of
-        # magnitude faster than a 3d scatter, which depth-sorts every point.
-        self._resource_line, = self.ax.plot([], [], [], linestyle="none",
-                                            marker="*", ms=2,
-                                            color=palette.food_green)
-        self._trail_line, = self.ax.plot([], [], [], "-", lw=1.0,
+        # Marker-only Line3D layers draw the whole resource field an order of
+        # magnitude faster than a 3d scatter, which depth-sorts every point,
+        # and one layer per depth band is what makes the volume see-through.
+        self._resource_bands = []
+        for k in range(_HAZE_BANDS):
+            near = k / (_HAZE_BANDS - 1)      # 0 = farthest band, 1 = nearest
+            band, = self.ax.plot(
+                [], [], [], linestyle="none", marker="o", markeredgewidth=0,
+                ms=_HAZE_SIZE[0] + near * (_HAZE_SIZE[1] - _HAZE_SIZE[0]),
+                alpha=_HAZE_ALPHA[0] + near * (_HAZE_ALPHA[1] - _HAZE_ALPHA[0]),
+                color=palette.food_green,
+            )
+            self._resource_bands.append(band)
+        self._trail_line, = self.ax.plot([], [], [], "-", lw=1.4,
                                          color=palette.brain_pink, alpha=0.9)
         # agents and the highlight ring are rebuilt per frame; see _draw_3d
         self._agent_scatter = None
@@ -233,6 +282,12 @@ class Viewer:
                                         self.ax.get_proj())
         return self.ax.transData.transform(np.column_stack([x, y]))
 
+    def _depths(self, pos):
+        """Projected depth of world positions ``(n, 3)``; smaller is nearer."""
+        M = self.ax.get_proj()
+        v = np.column_stack([pos, np.ones(len(pos))])
+        return (v @ M[2]) / (v @ M[3])
+
     def _screen_tolerance(self):
         """``select_radius`` in pixels, measured at the centre of the box."""
         centre = 0.5 * self.sim.grid.extent
@@ -276,8 +331,7 @@ class Viewer:
         return ()
 
     def _draw_2d(self, pop, resource):
-        rpos = resource.all_positions()
-        self._resource_scatter.set_offsets(rpos if rpos.size else np.empty((0, 2)))
+        self._resource_scatter.set_offsets(resource.all_positions())
 
         if pop.count:
             self._agent_scatter.set_offsets(pop.pos.copy())
@@ -295,10 +349,7 @@ class Viewer:
         self._trail_line.set_data(trail[:, 0], trail[:, 1])
 
     def _draw_3d(self, pop, resource):
-        rpos = resource.all_positions()
-        if not rpos.size:
-            rpos = np.empty((0, 3))
-        self._resource_line.set_data_3d(rpos[:, 0], rpos[:, 1], rpos[:, 2])
+        self._draw_haze(resource.all_positions())
 
         # a 3d scatter has no in-place offset setter, so rebuild the few
         # agent-sized artists each frame
@@ -311,7 +362,9 @@ class Viewer:
             frac = np.clip(pop.fuel / pop.s_max, 0.1, 1.0)
             self._agent_scatter = self.ax.scatter(
                 pop.pos[:, 0], pop.pos[:, 1], pop.pos[:, 2],
-                s=20 + 60 * frac, color=palette.motor_wine, depthshade=False,
+                s=14 + 30 * frac, color=palette.motor_wine,
+                edgecolors=palette.sensor_mist, linewidths=0.6,
+                depthshade=False,
             )
 
         trail, selected = self._selection_trail(pop)
@@ -322,6 +375,30 @@ class Viewer:
                 depthshade=False,
             )
         self._trail_line.set_data_3d(trail[:, 0], trail[:, 1], trail[:, 2])
+
+    def _draw_haze(self, rpos):
+        """Split the resource points into equal-count bands, near band last.
+
+        Each band keeps a fixed alpha and marker size, so sorting the points
+        into bands by their projected depth is what fades the far side of the
+        volume and leaves the near side brightest.
+        """
+        if rpos.shape[0] < _HAZE_BANDS:
+            for band in self._resource_bands:
+                band.set_data_3d(rpos[:0, 0], rpos[:0, 1], rpos[:0, 2])
+            self._resource_bands[-1].set_data_3d(rpos[:, 0], rpos[:, 1],
+                                                 rpos[:, 2])
+            return
+        depth = self._depths(rpos)
+        edges = np.quantile(depth, np.linspace(0.0, 1.0, _HAZE_BANDS + 1))
+        edges[0] -= 1.0
+        edges[-1] += 1.0
+        # smaller depth is nearer the viewer, so the last band is the nearest
+        rank = np.searchsorted(edges, depth, side="right") - 1
+        rank = _HAZE_BANDS - 1 - np.clip(rank, 0, _HAZE_BANDS - 1)
+        for k, band in enumerate(self._resource_bands):
+            sel = rpos[rank == k]
+            band.set_data_3d(sel[:, 0], sel[:, 1], sel[:, 2])
 
     def _selection_trail(self, pop):
         """Advance the selected agent's trail; return ``(trail, position)``.

@@ -125,9 +125,12 @@ means this:
 - A pick that lands near no agent adds one on that line, at the depth of the
   centre of the world box.
 
-A 3d world holds far more resources than a 2d one of the same width, so the
-default ``shape=(10, 10, 10)`` runs slower per frame than the 2d default; a
-smaller ``shape`` or a smaller ``Xi`` keeps it brisk.
+A 3d world holds far more resources than a 2d one of the same width - the
+default ``shape=(10, 10, 10)`` carries a quarter of a million of them - so the
+field is drawn as a translucent haze that fades with distance, letting you see
+the agents through the volume instead of only those on the near face. That
+same abundance makes each frame slower than in 2d; a smaller ``shape`` or a
+smaller ``Xi`` keeps it brisk.
 
 Reproducibility
 ---------------

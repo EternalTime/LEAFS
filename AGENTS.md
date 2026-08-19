@@ -26,6 +26,14 @@ This file is the project's committed home for project-intrinsic agent knowledge:
   warning count.
 - Anything that renders must run on the Agg backend: the tests select it at
   import, and an interactive window on the maintainer's machine steals focus.
+  Judge any rendering change by looking at the saved PNG, not by reasoning
+  about the code; note that `savefig(dpi=...)` rescales the canvas, so sample
+  `canvas.buffer_rgba()` before saving if you are testing pixels.
+- A 3d axes fills only part of the rectangle it is given, and how much depends
+  on the view angle: a cube seen down a body diagonal projects far larger than
+  one seen face-on. Any layout that inflates the axes to fill the window must
+  be sized for the worst case over all elevations and azimuths, or the first
+  drag clips the box. `pyLEAFS/viewer.py` records the measured fractions.
 - A 3d world is far heavier than a 2d one of the same width: the default
   `shape=(10, 10, 10)` holds around 250k resources and booms to thousands of
   agents, and the per-agent Python loop in `Population._harvest` then dominates

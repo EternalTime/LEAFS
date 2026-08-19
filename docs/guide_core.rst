@@ -11,10 +11,14 @@ Conventions
 **Dimension lives in the grid.** Dimension is a property of the
 :class:`~pyLEAFS.Grid`, set by the length of its ``shape``, and positions are
 always ``(n, D)`` arrays. There is no separate 2d and 3d codebase; code that
-avoids hard-coding ``D`` works in both. :class:`~pyLEAFS.viewer.Viewer` is the one
-place that branches on ``D``, because a flat box and a rotatable one are
-different matplotlib axes, and it branches behind a single class rather than
-in two.
+avoids hard-coding ``D`` works in both - the energy per resource, for one, is
+derived from the homogeneity with ``D`` as the exponent (see :doc:`theory`).
+Two places do dispatch on ``D``, because the geometry there genuinely differs:
+:class:`~pyLEAFS.viewer.Viewer`, since a flat box and a rotatable one are
+different matplotlib axes, and heading diffusion in
+:class:`~pyLEAFS.Population`, since a 2d heading rotates by an angle where a 3d
+one takes a renormalized tangential kick. Both branch behind a single class
+rather than splitting into two.
 
 **Arrays, not objects.** Resources and agents are stored as parallel NumPy
 arrays - a population's positions are one ``(n, D)`` array, its fuel one

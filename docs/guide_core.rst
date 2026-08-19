@@ -11,7 +11,10 @@ Conventions
 **Dimension lives in the grid.** Dimension is a property of the
 :class:`~pyLEAFS.Grid`, set by the length of its ``shape``, and positions are
 always ``(n, D)`` arrays. There is no separate 2d and 3d codebase; code that
-avoids hard-coding ``D`` works in both.
+avoids hard-coding ``D`` works in both. :class:`~pyLEAFS.viewer.Viewer` is the one
+place that branches on ``D``, because a flat box and a rotatable one are
+different matplotlib axes, and it branches behind a single class rather than
+in two.
 
 **Arrays, not objects.** Resources and agents are stored as parallel NumPy
 arrays - a population's positions are one ``(n, D)`` array, its fuel one

@@ -69,7 +69,8 @@ click on an agent   Select it: a ring appears, the side panel shows its
 ==================  ========================================================
 
 Clicking empty space while an agent is selected deselects it and adds an agent
-there. The viewer targets two-dimensional worlds.
+there. The same controls drive a 3d world; see below for what a click means
+once the box can be rotated.
 
 The homogeneity knob
 ---------------------
@@ -102,7 +103,34 @@ dimension:
 
    solid.run(500)
 
-:class:`~pyLEAFS.Viewer` renders 2d worlds; 3d runs are headless for now.
+:class:`~pyLEAFS.Viewer` follows suit: it reads the dimension from the grid and
+builds a flat or a rotatable box, with the same keys, the same side panel, and
+the same colours either way.
+
+.. code-block:: python
+
+   from pyLEAFS import Simulation, Viewer
+
+   Viewer(Simulation.forager(seed=0, shape=(10, 10, 10))).play()
+
+A 3d axes already spends left-drag on rotating the view, and a click on the
+screen is a line into the picture rather than a single point, so the mouse
+means this:
+
+- Left-drag rotates the view, and rotating never selects or adds anything.
+- A click that leaves the view where it was - press and release at effectively
+  the same place - is a pick.
+- A pick selects the agent nearest that line of sight, as long as it is within
+  the same ``select_radius`` tolerance as in 2d, measured on screen.
+- A pick that lands near no agent adds one on that line, at the depth of the
+  centre of the world box.
+
+A 3d world holds far more resources than a 2d one of the same width - the
+default ``shape=(10, 10, 10)`` carries a quarter of a million of them - so the
+field is drawn as a translucent haze that fades with distance, letting you see
+the agents through the volume instead of only those on the near face. That
+same abundance makes each frame slower than in 2d; a smaller ``shape`` or a
+smaller ``Xi`` keeps it brisk.
 
 Reproducibility
 ---------------

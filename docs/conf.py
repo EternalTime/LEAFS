@@ -25,8 +25,9 @@ extensions = [
 nitpicky = True
 
 # Docstring types such as "ndarray, shape (n, D), optional" are split into
-# words and each word is looked up as a class.  The shape placeholders and
-# "optional" are not classes, so they are not reported as dead references.
+# words and each word is looked up as a class.  The shape placeholders,
+# "optional" and "array_like" are not classes, so they are not reported as
+# dead references.
 nitpick_ignore = [
     ('py:class', name)
     for name in ('optional', 'array_like', 'n', 'n_active', '3**D')

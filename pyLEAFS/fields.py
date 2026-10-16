@@ -223,11 +223,11 @@ class ResourceField:
 
         Returns
         -------
-        disp : ~numpy.ndarray, shape (m, D)
+        disp : ndarray, shape (m, D)
             Minimum-image displacement from ``pos`` to each nearby resource.
-        region_ids : ~numpy.ndarray of int, shape (m,)
+        region_ids : ndarray of int, shape (m,)
             Owning region id for each resource (for :meth:`harvest`).
-        slots : ~numpy.ndarray of int, shape (m,)
+        slots : ndarray of int, shape (m,)
             Within-region active index for each resource (for :meth:`harvest`).
         """
         grid = self.grid
@@ -281,9 +281,9 @@ class ResourceField:
 
         Returns
         -------
-        disp : ~numpy.ndarray, shape (n, D)
+        disp : ndarray, shape (n, D)
             Displacement to the nearest resource (NaN row if none in range).
-        dist2 : ~numpy.ndarray, shape (n,)
+        dist2 : ndarray, shape (n,)
             Squared distance to that resource (inf if none).
 
         Notes

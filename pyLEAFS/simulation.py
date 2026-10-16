@@ -1,11 +1,11 @@
 """The simulation: a grid, a list of fields, a list of populations, a clock.
 
-:class:`Simulation` owns the shared :class:`Grid`, a *list* of fields, and a
-*list* of populations, and advances them together. Both are lists from the
-start so that adding a pheromone field or a predator population later is an
-append, not a rewrite. v1 has one resource field and one greedy forager
-population; the :meth:`forager` factory builds that world from the LEAFS applet
-parameters.
+:class:`Simulation` owns the shared :class:`~pyLEAFS.grid.Grid`, a *list* of
+fields, and a *list* of populations, and advances them together. Both are lists
+from the start so that adding a pheromone field or a predator population later
+is an append, not a rewrite. v1 has one resource field and one greedy forager
+population; the :meth:`~pyLEAFS.simulation.Simulation.forager` factory builds
+that world from the LEAFS applet parameters.
 """
 
 import numpy as np
@@ -23,7 +23,8 @@ class Simulation:
     grid : Grid
         Shared spatial grid.
     fields : list
-        Fields to step each timestep (e.g. a :class:`ResourceField`).
+        Fields to step each timestep (e.g. a
+        :class:`~pyLEAFS.fields.ResourceField`).
     populations : list of Population
         Populations to step each timestep.
     dt : float

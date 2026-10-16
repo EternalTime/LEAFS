@@ -36,9 +36,9 @@ class Grid:
         Region side length.
     n_regions : int
         Total number of regions, ``prod(shape)``.
-    extent : ndarray of float, shape (D,)
+    extent : ~numpy.ndarray of float, shape (D,)
         Physical size of the domain along each axis (``shape * L``).
-    offsets : ndarray of int, shape (3**D, D)
+    offsets : ~numpy.ndarray of int, shape (3**D, D)
         Moore-neighbourhood offsets, the centre cell ``(0, ..., 0)`` first.
 
     Examples
@@ -72,12 +72,12 @@ class Grid:
 
         Parameters
         ----------
-        pos : ndarray, shape (n, D)
+        pos : ~numpy.ndarray, shape (n, D)
             Physical positions.
 
         Returns
         -------
-        ndarray, shape (n, D)
+        ~numpy.ndarray, shape (n, D)
             Positions wrapped into ``[0, extent)`` along each axis.
         """
         return np.mod(pos, self.extent)
@@ -87,12 +87,12 @@ class Grid:
 
         Parameters
         ----------
-        pos : ndarray, shape (n, D)
+        pos : ~numpy.ndarray, shape (n, D)
             Physical positions (wrapped internally).
 
         Returns
         -------
-        ndarray of int, shape (n, D)
+        ~numpy.ndarray of int, shape (n, D)
             Per-axis region indices in ``[0, shape[axis])``.
         """
         idx = np.floor(self.wrap(pos) / self.L).astype(np.int64)
@@ -114,12 +114,12 @@ class Grid:
 
         Parameters
         ----------
-        a, b : ndarray, shape (n, D)
+        a, b : ~numpy.ndarray, shape (n, D)
             Physical positions.
 
         Returns
         -------
-        ndarray, shape (n, D)
+        ~numpy.ndarray, shape (n, D)
             The shortest displacement from ``a`` to ``b`` on the torus, each
             component in ``[-extent/2, extent/2)``.
         """
@@ -131,12 +131,12 @@ class Grid:
 
         Parameters
         ----------
-        region_idx : ndarray of int, shape (n, D)
+        region_idx : ~numpy.ndarray of int, shape (n, D)
             Per-axis region indices.
 
         Returns
         -------
-        ndarray of int, shape (n, 3**D)
+        ~numpy.ndarray of int, shape (n, 3**D)
             Linear region ids of each region's Moore neighbourhood, the region
             itself in column 0, wrapped toroidally.
         """

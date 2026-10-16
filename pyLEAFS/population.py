@@ -1,10 +1,10 @@
 """Forager populations.
 
 A :class:`Population` is a struct-of-arrays bag of agent bodies sharing a
-:class:`Grid`. Each agent has a position, a unit heading, a fuel reserve, and
-some bookkeeping. The v1 controller is *greedy* and lives in the agent body:
-steer toward the nearest resource within sensing range, otherwise move
-ballistically with rotational diffusion.
+:class:`~pyLEAFS.grid.Grid`. Each agent has a position, a unit heading, a fuel
+reserve, and some bookkeeping. The v1 controller is *greedy* and lives in the
+agent body: steer toward the nearest resource within sensing range, otherwise
+move ballistically with rotational diffusion.
 
 The struct-of-arrays layout (parallel arrays rather than per-agent objects)
 keeps the step vectorizable and dimension-agnostic, and is the natural target
@@ -49,19 +49,19 @@ class Population:
     ----------
     count : int
         Number of live agents.
-    pos : ndarray, shape (count, D)
+    pos : ~numpy.ndarray, shape (count, D)
         Agent positions (a live view; copy if you need to retain it).
-    heading : ndarray, shape (count, D)
+    heading : ~numpy.ndarray, shape (count, D)
         Unit heading vectors.
-    fuel : ndarray, shape (count,)
+    fuel : ~numpy.ndarray, shape (count,)
         Fuel reserves.
-    age : ndarray, shape (count,)
+    age : ~numpy.ndarray, shape (count,)
         Age in timesteps.
-    ids : ndarray, shape (count,)
+    ids : ~numpy.ndarray, shape (count,)
         Stable unique id per agent (survives compaction).
-    harvested : ndarray, shape (count,)
+    harvested : ~numpy.ndarray, shape (count,)
         Lifetime resources collected per agent.
-    offspring : ndarray, shape (count,)
+    offspring : ~numpy.ndarray, shape (count,)
         Number of daughters budded per agent.
     """
 
@@ -198,8 +198,8 @@ class Population:
         """Advance every agent one timestep against the field list.
 
         Greedy steering, motion, harvesting against the first
-        :class:`ResourceField` in ``fields``, metabolism, budding, and death.
-        Returns nothing; mutates the population in place.
+        :class:`~pyLEAFS.fields.ResourceField` in ``fields``, metabolism,
+        budding, and death. Returns nothing; mutates the population in place.
         """
         if self.count == 0:
             return

@@ -1,7 +1,8 @@
 """Generic spatial hash over a point set.
 
 A :class:`SpatialHash` buckets an arbitrary ``(n, D)`` set of points into the
-regions of a shared :class:`Grid`, then answers Moore-neighbourhood queries.
+regions of a shared :class:`~pyLEAFS.grid.Grid`, then answers
+Moore-neighbourhood queries.
 It is deliberately agnostic about what the points are --- resources, foragers,
 predators --- so the same structure serves every layer. Unlike the resource
 field's internal buffer, this is a lightweight index rebuilt from a positions
@@ -20,7 +21,7 @@ class SpatialHash:
     ----------
     grid : Grid
         Shared spatial grid.
-    positions : ndarray, shape (n, D), optional
+    positions : ~numpy.ndarray, shape (n, D), optional
         Initial point set. May be rebuilt later with :meth:`build`.
 
     Examples
@@ -46,7 +47,7 @@ class SpatialHash:
 
         Parameters
         ----------
-        positions : ndarray, shape (n, D)
+        positions : ~numpy.ndarray, shape (n, D)
             Physical positions to index.
         """
         self._positions = np.atleast_2d(np.asarray(positions, dtype=np.float64))
@@ -63,12 +64,12 @@ class SpatialHash:
 
         Parameters
         ----------
-        pos : ndarray, shape (D,)
+        pos : ~numpy.ndarray, shape (D,)
             Physical query position.
 
         Returns
         -------
-        ndarray of int
+        ~numpy.ndarray of int
             Indices into the indexed positions array of every point whose
             region is in the Moore neighbourhood of ``pos``. Not distance
             filtered --- the caller refines with actual displacements.

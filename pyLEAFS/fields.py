@@ -22,10 +22,10 @@ from pyLEAFS.grid import Grid
 class Field(Protocol):
     """Structural protocol for a steppable, samplable field.
 
-    A field references a :class:`Grid` and implements the three verbs the
-    simulation and agents use. ``deposit`` is optional in spirit (the resource
-    field does not accept deposits), but the signature is reserved so that
-    pheromone-style fields slot in without changing call sites.
+    A field references a :class:`~pyLEAFS.grid.Grid` and implements the three
+    verbs the simulation and agents use. ``deposit`` is optional in spirit (the
+    resource field does not accept deposits), but the signature is reserved so
+    that pheromone-style fields slot in without changing call sites.
     """
 
     grid: Grid
@@ -80,9 +80,9 @@ class ResourceField:
     ----------
     N_eq : float
         Agent-free equilibrium count per region.
-    count : ndarray of int, shape (n_regions,)
+    count : ~numpy.ndarray of int, shape (n_regions,)
         Current number of active resources in each region.
-    positions : ndarray, shape (n_active, D)
+    positions : ~numpy.ndarray, shape (n_active, D)
         Physical positions of all active resources (rebuilt on demand by
         :meth:`all_positions`).
 
@@ -218,16 +218,16 @@ class ResourceField:
 
         Parameters
         ----------
-        pos : ndarray, shape (D,)
+        pos : ~numpy.ndarray, shape (D,)
             Physical query position.
 
         Returns
         -------
-        disp : ndarray, shape (m, D)
+        disp : ~numpy.ndarray, shape (m, D)
             Minimum-image displacement from ``pos`` to each nearby resource.
-        region_ids : ndarray of int, shape (m,)
+        region_ids : ~numpy.ndarray of int, shape (m,)
             Owning region id for each resource (for :meth:`harvest`).
-        slots : ndarray of int, shape (m,)
+        slots : ~numpy.ndarray of int, shape (m,)
             Within-region active index for each resource (for :meth:`harvest`).
         """
         grid = self.grid
@@ -276,14 +276,14 @@ class ResourceField:
 
         Parameters
         ----------
-        pos : ndarray, shape (n, D)
+        pos : ~numpy.ndarray, shape (n, D)
             Physical query positions.
 
         Returns
         -------
-        disp : ndarray, shape (n, D)
+        disp : ~numpy.ndarray, shape (n, D)
             Displacement to the nearest resource (NaN row if none in range).
-        dist2 : ndarray, shape (n,)
+        dist2 : ~numpy.ndarray, shape (n,)
             Squared distance to that resource (inf if none).
 
         Notes

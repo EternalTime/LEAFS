@@ -11,11 +11,25 @@ release = '0.1.0'
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx_copybutton',
     'myst_nb',
+]
+
+# Report every cross-reference whose target cannot be found.  With the -W
+# in docs/Makefile, a dead reference fails the build instead of rendering as
+# plain text.
+nitpicky = True
+
+# Docstring types such as "ndarray, shape (n, D), optional" are split into
+# words and each word is looked up as a class.  The shape placeholders and
+# "optional" are not classes, so they are not reported as dead references.
+nitpick_ignore = [
+    ('py:class', name)
+    for name in ('optional', 'array_like', 'n', 'n_active', '3**D')
 ]
 
 copybutton_prompt_text = r'>>> |\.\.\. '
@@ -50,3 +64,9 @@ exclude_patterns = ['_build', '**.ipynb_checkpoints']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_css_files = ['custom.css']
+
+# Resolve references to the Python standard library and to NumPy.
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable', None),
+}

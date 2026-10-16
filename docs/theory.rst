@@ -32,7 +32,7 @@ With no agents present the field relaxes to an equilibrium count per region
 
    N_\mathrm{eq} = \frac{\Gamma\,L^{D}}{\epsilon\,\gamma},
 
-which :class:`~pyLEAFS.ResourceField` exposes as ``N_eq``.
+which :class:`~pyLEAFS.fields.ResourceField` exposes as ``N_eq``.
 
 Homogeneity
 -----------
@@ -51,7 +51,7 @@ dimensionless **homogeneity** :math:`\Xi`, the ratio of the agent length scale
 
 Taking the agent length scale to be the collection radius
 (:math:`\ell_A = r_\mathrm{col}` in the 2d applet) and inverting for the energy
-per resource gives the relation :meth:`~pyLEAFS.Simulation.forager` uses:
+per resource gives the relation :meth:`~pyLEAFS.simulation.Simulation.forager` uses:
 
 .. math::
 

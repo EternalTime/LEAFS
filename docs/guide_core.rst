@@ -9,14 +9,14 @@ Conventions
 -----------
 
 **Dimension lives in the grid.** Dimension is a property of the
-:class:`~pyLEAFS.Grid`, set by the length of its ``shape``, and positions are
+:class:`~pyLEAFS.grid.Grid`, set by the length of its ``shape``, and positions are
 always ``(n, D)`` arrays. There is no separate 2d and 3d codebase; code that
 avoids hard-coding ``D`` works in both - the energy per resource, for one, is
 derived from the homogeneity with ``D`` as the exponent (see :doc:`theory`).
 Two places do dispatch on ``D``, because the geometry there genuinely differs:
 :class:`~pyLEAFS.viewer.Viewer`, since a flat box and a rotatable one are
 different matplotlib axes, and heading diffusion in
-:class:`~pyLEAFS.Population`, since a 2d heading rotates by an angle where a 3d
+:class:`~pyLEAFS.population.Population`, since a 2d heading rotates by an angle where a 3d
 one takes a renormalized tangential kick. Both branch behind a single class
 rather than splitting into two.
 
@@ -32,7 +32,7 @@ waits until the physics is pinned.
 The grid
 --------
 
-Every field and every population references one :class:`~pyLEAFS.Grid`, which
+Every field and every population references one :class:`~pyLEAFS.grid.Grid`, which
 owns the geometry: the region partition, the toroidal wrap, the minimum-image
 displacement, and the Moore-neighbour lookup (:math:`3^{D}` neighbours per
 region). Defining it once is what lets fields and populations interoperate
@@ -42,9 +42,9 @@ The field list
 --------------
 
 A *field* is anything spatially distributed that the simulation steps and agents
-sample. :class:`~pyLEAFS.Field` is the structural protocol - ``step``,
-``sample``, ``deposit`` - and :class:`~pyLEAFS.ResourceField` is its only
-implementation in v1. :class:`~pyLEAFS.Simulation` holds a *list* of fields and
+sample. :class:`~pyLEAFS.fields.Field` is the structural protocol - ``step``,
+``sample``, ``deposit`` - and :class:`~pyLEAFS.fields.ResourceField` is its only
+implementation in v1. :class:`~pyLEAFS.simulation.Simulation` holds a *list* of fields and
 steps each one:
 
 .. code-block:: python
@@ -60,7 +60,7 @@ a call site.
 The spatial hash
 ----------------
 
-:class:`~pyLEAFS.SpatialHash` buckets an arbitrary ``(n, D)`` point set into grid
+:class:`~pyLEAFS.spatialhash.SpatialHash` buckets an arbitrary ``(n, D)`` point set into grid
 regions and answers neighbourhood queries, agnostic about what the points are.
 The resource field keeps its own buffer, but predators sensing prey, agents
 sensing each other, and any future point-set interaction can share this one index.
@@ -97,10 +97,10 @@ self-contained makes that extraction a refactor of one method, not a redesign.
 Adding a layer
 --------------
 
-Write a new :class:`~pyLEAFS.Field` (a pheromone field, say) or a new
-``Population`` (predators), reusing the shared :class:`~pyLEAFS.Grid` and, where
-useful, :class:`~pyLEAFS.SpatialHash`; append it to the simulation's ``fields``
+Write a new :class:`~pyLEAFS.fields.Field` (a pheromone field, say) or a new
+``Population`` (predators), reusing the shared :class:`~pyLEAFS.grid.Grid` and, where
+useful, :class:`~pyLEAFS.spatialhash.SpatialHash`; append it to the simulation's ``fields``
 or ``populations`` list; then add a factory, or extend
-:meth:`~pyLEAFS.Simulation.forager`, to assemble the new world and pin its
+:meth:`~pyLEAFS.simulation.Simulation.forager`, to assemble the new world and pin its
 behavior with a test. The loops already iterate lists and the geometry already
 lives in the grid, so the existing layers do not change.

@@ -63,15 +63,7 @@ one on that line at the depth of the centre of the box.
 ## Documentation
 
 The docs live at [damiansowinski.com/LEAFS](https://damiansowinski.com/LEAFS/),
-or run `import pyLEAFS; pyLEAFS.docs()` to open them. To build them locally:
-
-```bash
-source .venv/bin/activate
-pip install -e '.[docs]'
-make -C docs html
-```
-
-The rendered pages land in `docs/_build/html`.
+or run `import pyLEAFS; pyLEAFS.docs()` to open them.
 
 ## Tests
 

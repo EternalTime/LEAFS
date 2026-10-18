@@ -57,7 +57,7 @@ class ResourceField:
     giving an agent-free equilibrium of :math:`N_\\mathrm{eq} = \\Gamma L^D /
     (\\epsilon\\gamma)` resources per region. Positions are stored in one flat
     ``(capacity, D)`` buffer; each region owns a contiguous slot range and an
-    active count, so births append, deaths swap-delete, and harvest is O(1) ---
+    active count, so births append, deaths swap-delete, and harvest is O(1):
     the struct-of-arrays equivalent of the MATLAB active-prefix ``Region``.
 
     Parameters

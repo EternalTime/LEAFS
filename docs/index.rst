@@ -4,8 +4,8 @@ pyLEAFS
 An organism that must eat to live is, whether it knows it or not, in the
 business of information. To harvest energy from a structured environment it has
 to find that energy, and to find it reliably it has to build something that
-tells it where the energy is: a sensor. LEAFS --- the Layered Environment with
-Agents Foraging Simulator --- is a model for studying that pressure directly.
+tells it where the energy is: a sensor. LEAFS - the Layered Environment with
+Agents Foraging Simulator - is a model for studying that pressure directly.
 Agents forage a replenishing field of resources; energy is the only currency;
 and the central question is how the demand for energy shapes the sensors and
 information-processing behavior the agents come to rely on.
@@ -13,8 +13,8 @@ information-processing behavior the agents come to rely on.
 The model is built in layers. At the bottom is a *resource layer*: a stochastic
 field of energy quanta, born and decaying as a Poisson point process, tuned by a
 single homogeneity parameter :math:`\Xi` that slides the world from sparse and
-patchy to dense and uniform. Above it sit *thermodynamic and signalling layers*
---- metabolism, and later pheromone and chemical fields --- through which agents
+patchy to dense and uniform. Above it sit *thermodynamic and signalling layers* -
+metabolism, and later pheromone and chemical fields - through which agents
 spend and sense energy. At the top is the *agent layer*: bodies that move,
 metabolize, reproduce, and (in later versions) carry evolvable neural
 controllers and sensor arrays. Each layer is an addition to the one below, and

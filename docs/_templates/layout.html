@@ -1,0 +1,3 @@
+{#- Join page and site titles with a plain dash where the theme puts an em dash. -#}
+{%- extends "!layout.html" %}
+{%- block htmltitle %}<title>{{ title|striptags|e }}{% if not embedded and docstitle %} - {{ docstitle|e }}{% endif %}</title>{%- endblock %}

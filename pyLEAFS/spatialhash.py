@@ -3,8 +3,8 @@
 A :class:`SpatialHash` buckets an arbitrary ``(n, D)`` set of points into the
 regions of a shared :class:`~pyLEAFS.grid.Grid`, then answers
 Moore-neighbourhood queries.
-It is deliberately agnostic about what the points are --- resources, foragers,
-predators --- so the same structure serves every layer. Unlike the resource
+It is deliberately agnostic about what the points are - resources, foragers,
+predators - so the same structure serves every layer. Unlike the resource
 field's internal buffer, this is a lightweight index rebuilt from a positions
 array on demand.
 """
@@ -72,7 +72,7 @@ class SpatialHash:
         ~numpy.ndarray of int
             Indices into the indexed positions array of every point whose
             region is in the Moore neighbourhood of ``pos``. Not distance
-            filtered --- the caller refines with actual displacements.
+            filtered; the caller refines with actual displacements.
         """
         pos = np.asarray(pos, dtype=np.float64).reshape(1, self.grid.D)
         ridx = self.grid.region_of(pos)

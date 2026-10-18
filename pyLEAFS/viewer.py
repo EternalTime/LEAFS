@@ -385,7 +385,7 @@ class Viewer:
         self._render_panel(pop)
 
         status = "PAUSED" if self.paused else "running"
-        extinct = " — EXTINCTION" if pop.count == 0 else ""
+        extinct = " - EXTINCTION" if pop.count == 0 else ""
         self._title.set_text(
             f"t = {self.sim.time:7.2f}   agents = {pop.count}   "
             f"resources = {resource.total()}   [{status}]{extinct}"

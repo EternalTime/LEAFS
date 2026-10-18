@@ -71,3 +71,26 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://numpy.org/doc/stable', None),
 }
+
+
+# -- Plain dash between a parameter's type and its description -------------
+# Sphinx and napoleon join them with " -- ", which smart quotes draw as an
+# en dash.
+
+from docutils import nodes
+from sphinx.transforms import SphinxTransform
+
+
+class PlainDashFieldSeparator(SphinxTransform):
+    default_priority = 700  # before smart quotes, which run at 750
+
+    def apply(self, **kwargs):
+        for body in self.document.findall(nodes.field_body):
+            for text in list(body.findall(nodes.Text)):
+                if " -- " in text and not isinstance(text.parent, nodes.literal):
+                    plain = nodes.Text(str(text).replace(" -- ", " - "))
+                    text.parent.replace(text, plain)
+
+
+def setup(app):
+    app.add_transform(PlainDashFieldSeparator)

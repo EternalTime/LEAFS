@@ -40,9 +40,10 @@ The science behind the model is developed in three papers:
   Neural Nets driven by Environmental Homogeneity* (preprint). The
   neuroevolution layer that later versions of pyLEAFS will implement.
 
-If you are new here, start with :doc:`getting_started`, then read
-:doc:`theory` for the model the code implements and :doc:`guide_core` for the
-architecture and how new layers attach.
+If you are new here, start with :doc:`getting_started`, take the model for a
+spin in the :doc:`applet`, then read :doc:`theory` for the model the code
+implements and :doc:`guide_core` for the architecture and how new layers
+attach.
 
 Guide
 ^^^^^
@@ -51,6 +52,7 @@ Guide
    :maxdepth: 1
 
    getting_started
+   applet
    theory
    guide_core
 

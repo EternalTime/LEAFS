@@ -198,8 +198,8 @@
     #leafs-phase { height: auto; aspect-ratio: 1 / 1; }
 }
 
-/* On a phone the world takes the whole width, square, and the panels
-   follow it down the card instead of covering it. */
+/* On a narrow card, as on a phone, the world takes the whole width, square,
+   and the panels follow it down the card instead of covering it. */
 @container leafs (max-width: 609.98px) {
     #leafs-stage { line-height: 1.35; padding-bottom: 8px; }
     #leafs-canvas { height: auto; aspect-ratio: 1 / 1; }

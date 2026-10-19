@@ -17,6 +17,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_copybutton',
     'myst_nb',
+    'matplotlib.sphinxext.plot_directive',
 ]
 
 # Report every cross-reference whose target cannot be found.  With the -W
@@ -45,6 +46,17 @@ copybutton_selector = 'div:not(.output) > div.highlight pre'
 nb_execution_mode = 'force'
 nb_execution_raise_on_error = True
 nb_execution_timeout = 900
+
+# Figures on the reStructuredText pages come from ``.. plot::`` blocks, which
+# run their code on every build and show it above the figure.  Every run is
+# seeded, so each build draws the same figures.  They are saved the way the
+# notebook pages save theirs, as one PNG at 100 dpi trimmed to the drawing.
+plot_include_source = True
+plot_html_show_source_link = False
+plot_html_show_formats = False
+plot_formats = [('png', 100)]
+plot_apply_rcparams = True
+plot_rcparams = {'savefig.bbox': 'tight'}
 
 # Notebook text writes math as $...$ and $$...$$, which Jupyter and Colab
 # render too, where the {math} role would show up as raw markup.

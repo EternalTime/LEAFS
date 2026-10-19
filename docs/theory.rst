@@ -34,6 +34,33 @@ With no agents present the field relaxes to an equilibrium count per region
 
 which :class:`~pyLEAFS.fields.ResourceField` exposes as ``N_eq``.
 
+Start the field empty, with no agents, and it fills toward that count on the
+timescale :math:`1/\gamma`. The dashed line is :math:`N_\mathrm{eq}` summed over
+the regions.
+
+.. plot::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from pyLEAFS import Simulation, palette
+
+   sim = Simulation.forager(seed=0, n_agents=0)
+   field = sim.fields[0]
+   field.seed(sim.rng, n0=0)
+
+   counts = []
+   for _ in range(3000):
+       sim.step()
+       counts.append(field.total())
+   t = sim.dt * np.arange(1, 3001)
+
+   fig, ax = plt.subplots()
+   ax.plot(t, counts, color=palette.resource_deep)
+   ax.axhline(field.N_eq * sim.grid.n_regions, color='k', ls='--', lw=1)
+   ax.set_xlabel('time')
+   ax.set_ylabel('resources')
+   plt.show()
+
 Homogeneity
 -----------
 
@@ -62,6 +89,29 @@ spaced. Large :math:`\Xi` is a *homogeneous* one: many lean resources, densely
 packed. Homogeneity is the central control variable of the whole research
 program: the semantic-information threshold, the foraging phenotypes, and the
 punctuated evolutionary dynamics are all studied as functions of :math:`\Xi`.
+
+Two newly filled fields on a :math:`3 \times 3` grid of regions show the two
+ends, each dot's area proportional to its resource's energy :math:`\epsilon`.
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   from pyLEAFS import Simulation, palette
+
+   fig, axes = plt.subplots(1, 2, sharey=True)
+   for ax, Xi in zip(axes, (0.25, 1.0)):
+       sim = Simulation.forager(seed=0, shape=(3, 3), Xi=Xi)
+       field = sim.fields[0]
+       food = field.positions
+       ax.scatter(food[:, 0], food[:, 1], s=200 * field.epsilon,
+                  color=palette.resource_deep)
+       ax.set_xlim(0, sim.grid.extent[0])
+       ax.set_ylim(0, sim.grid.extent[1])
+       ax.set_aspect('equal')
+       ax.set_title(r'$\Xi = %g$' % Xi)
+       ax.set_xlabel('x')
+   axes[0].set_ylabel('y')
+   plt.show()
 
 The agent
 ---------
@@ -112,6 +162,40 @@ daughter a short distance away and the two split the fuel equally. An agent dies
 when :math:`s \le 0`. In v1 the daughter is an exact clone; mutation of a genome
 is a *(later layer)*.
 
+Track one agent by its ``id``: it starts full and buds on its first step, and
+from then on you see its fuel drain at the steady rate :math:`\mu_0`, jump by
+:math:`\epsilon` with each resource it collects, and halve when it reaches the
+budding threshold, the dashed line.
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   from pyLEAFS import Simulation, palette
+
+   sim = Simulation.forager(seed=1)
+   pop = sim.populations[0]
+   agent = pop.ids[0]
+
+   # A bud halves the fuel within a step, so on a step where the agent buds
+   # we also draw the fuel it had just before, twice what is left after.
+   t, fuel = [], []
+   for k in range(1, 1001):
+       buds = int(pop.offspring[pop.index_of(agent)])
+       sim.step()
+       i = pop.index_of(agent)
+       if pop.offspring[i] > buds:
+           t.append(k * sim.dt)
+           fuel.append(2 * pop.fuel[i])
+       t.append(k * sim.dt)
+       fuel.append(pop.fuel[i])
+
+   fig, ax = plt.subplots()
+   ax.plot(t, fuel, color=palette.motor_wine)
+   ax.axhline(pop.repro_threshold, color='k', ls='--', lw=1)
+   ax.set_xlabel('time')
+   ax.set_ylabel('fuel')
+   plt.show()
+
 Population dynamics
 -------------------
 
@@ -137,6 +221,38 @@ oscillation about this line rather than going extinct; that is the behavior the
 v1 test suite pins. Plotting the trajectory in the
 :math:`(N_R/N_R^{\max},\,N_A/N_A^{\max})` plane, and detecting the transition
 onto the equilibrium line, is the first of the *(later)* observables.
+
+A run of the default world shows the two normalized counts and their
+sum. The agents overshoot, graze the field down, and from then on the sum
+hovers about 1.
+
+.. plot::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from pyLEAFS import Simulation, palette
+
+   sim = Simulation.forager(seed=0)
+   field, pop = sim.fields[0], sim.populations[0]
+   NR_max = field.N_eq * sim.grid.n_regions
+   NA_max = field.Gamma * np.prod(sim.grid.extent) / pop.mu0
+
+   nR, nA = [], []
+   for _ in range(2000):
+       sim.step()
+       nR.append(field.total() / NR_max)
+       nA.append(pop.count / NA_max)
+   t = sim.dt * np.arange(1, 2001)
+
+   fig, ax = plt.subplots()
+   ax.plot(t, nR, color=palette.resource_deep, label=r'$N_R/N_R^{\max}$')
+   ax.plot(t, nA, color=palette.motor_wine, label=r'$N_A/N_A^{\max}$')
+   ax.plot(t, np.add(nR, nA), color='k', label='sum')
+   ax.axhline(1, color='k', ls='--', lw=1)
+   ax.set_xlabel('time')
+   ax.set_ylabel('normalized count')
+   ax.legend()
+   plt.show()
 
 Semantic information
 --------------------

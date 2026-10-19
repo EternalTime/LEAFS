@@ -15,7 +15,7 @@ motion, harvest, metabolism, budding and death of
 :class:`~pyLEAFS.population.Population`, stage by stage. Nothing is
 precomputed.
 
-The applet is yours to take apart. It ships with the library as
+The applet is yours to take apart. It lives in the library's repository as
 `docs/_static/leafs_applet.js
 <https://github.com/EternalTime/LEAFS/blob/master/docs/_static/leafs_applet.js>`_:
 plain JavaScript with no build step and no dependencies. The first part is the

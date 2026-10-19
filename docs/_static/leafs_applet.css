@@ -1,0 +1,208 @@
+/* LEAFS applet - styled to sit inside the RTD docs page.
+   Palette from custom.css and pyLEAFS.palette: Rochester Blue (#003B71)
+   masthead, wire ink (#1C2030) stage around an abyss blue (#2B3A52) world,
+   food green (#50C870) resources, brain pink (#F0A0C0) foragers and
+   accents, sensor mist (#D8E8F0) for the selected forager.
+   The simulation fills the card below the header; the controls, the
+   readout and the meters float over it as translucent panels. */
+
+#leafs-app {
+    --leafs-blue: #003B71;
+    --leafs-ink: #1C2030;
+    --leafs-green: #50C870;
+    --leafs-pink: #F0A0C0;
+    font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+    border: 1px solid #d8d8d8;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1.5em 0;
+    background: var(--leafs-ink);
+}
+
+#leafs-head {
+    background: var(--leafs-blue);
+    color: #fff;
+    font-family: 'Roboto Slab', Georgia, serif;
+    font-weight: 700;
+    font-size: 0.92em;
+    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#leafs-head .leafs-title { flex: 1; }
+
+.leafs-hbtn {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    padding: 3px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.leafs-hbtn:hover { background: rgba(255, 255, 255, 0.3); }
+
+/* The canvas fills the card; the world is vector-drawn, so no pixelated
+   rendering here. */
+#leafs-stage {
+    position: relative;
+    background: var(--leafs-ink);
+    line-height: 0;
+}
+
+#leafs-canvas {
+    display: block;
+    width: 100%;
+    height: 420px;
+    cursor: crosshair;
+}
+
+/* Translucent panels floating on the simulation. */
+.leafs-ov {
+    position: absolute;
+    background: rgba(12, 14, 22, 0.45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 5px;
+    color: #d8d8d8;
+    font-size: 14px;
+    line-height: 1.35;
+    padding: 6px 8px;
+}
+
+/* The readout, top left: the clock, the census, and the forager being
+   followed. For looking at, not touching. */
+#leafs-readout {
+    top: 8px;
+    left: 8px;
+    min-width: 128px;
+    pointer-events: none;
+}
+
+.leafs-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-variant-numeric: tabular-nums;
+}
+
+.leafs-row .k { color: #a3acbd; }
+.leafs-row .v { font-weight: 700; color: #eef1f6; }
+
+#leafs-agent {
+    display: none;
+}
+
+#leafs-agent.on {
+    display: block;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#leafs-agent .v { color: #D8E8F0; }
+
+/* Controls, bottom left. */
+#leafs-controls {
+    bottom: 8px;
+    left: 8px;
+    width: 230px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.leafs-ctl label {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 1px;
+    color: #a3acbd;
+}
+
+.leafs-ctl label .val {
+    font-weight: 700;
+    color: var(--leafs-pink);
+    font-variant-numeric: tabular-nums;
+}
+
+.leafs-ctl input[type=range] {
+    display: block;
+    width: 100%;
+    height: 13px;
+    margin: 0;
+    accent-color: var(--leafs-pink);
+}
+
+/* The meters, top right: for looking at, not touching. */
+#leafs-meters {
+    top: 8px;
+    right: 8px;
+    pointer-events: none;
+    line-height: 1.2;
+}
+
+#leafs-trace, #leafs-phase {
+    display: block;
+    width: 160px;
+    margin: 0 auto;
+}
+
+#leafs-trace { height: 72px; }
+#leafs-phase { height: 160px; }
+
+.leafs-cap {
+    color: #a3acbd;
+    font-size: 13px;
+    text-align: center;
+    margin: 2px 0 6px;
+}
+
+.leafs-cap .ag { color: var(--leafs-pink); }
+.leafs-cap .rs { color: var(--leafs-green); }
+
+/* MathJax renders into its own container; keep it inline, at our size, and
+   in the panel's colour rather than the page's body colour. */
+.leafs-ov mjx-container {
+    display: inline !important;
+    margin: 0 !important;
+    font-size: 105% !important;
+    color: inherit;
+}
+
+/* On a phone the world takes the whole width, square, and the panels
+   follow it down the card instead of covering it. */
+@media (max-width: 640px) {
+    #leafs-stage { line-height: 1.35; padding-bottom: 8px; }
+    #leafs-canvas { height: auto; aspect-ratio: 1 / 1; }
+    #leafs-stage .leafs-ov {
+        position: static;
+        margin: 8px 8px 0;
+        width: auto;
+        min-width: 0;
+    }
+    #leafs-readout { display: flex; flex-wrap: wrap; gap: 2px 18px; }
+    #leafs-readout .leafs-row { gap: 6px; }
+    #leafs-agent.on {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px 18px;
+        width: 100%;
+        margin-top: 2px;
+    }
+    #leafs-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 14px;
+    }
+    #leafs-meters { display: flex; gap: 10px; align-items: flex-end; }
+    #leafs-meters .leafs-meter { flex: 1; min-width: 0; }
+    #leafs-meters .leafs-meter + .leafs-meter { flex: 0 0 120px; }
+    #leafs-trace, #leafs-phase { width: 100%; height: 120px; }
+    .leafs-cap { margin-bottom: 0; }
+}

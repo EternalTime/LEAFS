@@ -38,6 +38,38 @@ displacement, and the Moore-neighbour lookup (:math:`3^{D}` neighbours per
 region). Defining it once is what lets fields and populations interoperate
 without each re-deriving coordinate conventions.
 
+On a :math:`5 \times 5` grid, the resources the field finds around one point are
+the green ones: the point's own region and its eight neighbours, wrapping across
+the left edge of the box.
+
+.. plot::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from pyLEAFS import Simulation, palette
+
+   sim = Simulation.forager(seed=0, shape=(5, 5))
+   grid, field = sim.grid, sim.fields[0]
+   point = np.array([4.0, 23.0])
+   disp, _, _ = field.neighbourhood(point)
+   near = grid.wrap(point + disp)
+   food = field.positions
+
+   fig, ax = plt.subplots()
+   ax.scatter(food[:, 0], food[:, 1], s=4, color=palette.sensor_slate)
+   ax.scatter(near[:, 0], near[:, 1], s=4, color=palette.resource_deep)
+   ax.plot(*point, 'o', color=palette.motor_wine)
+   for k in range(1, grid.shape[0]):
+       ax.axvline(k * grid.L, color='k', lw=0.5)
+   for k in range(1, grid.shape[1]):
+       ax.axhline(k * grid.L, color='k', lw=0.5)
+   ax.set_xlim(0, grid.extent[0])
+   ax.set_ylim(0, grid.extent[1])
+   ax.set_aspect('equal')
+   ax.set_xlabel('x')
+   ax.set_ylabel('y')
+   plt.show()
+
 The field list
 --------------
 
@@ -83,6 +115,39 @@ multi-trophic dynamics will be expressed.
 Each agent carries a stable ``id`` that survives the swap-compaction used when
 agents die, so a caller - the viewer's inspector, a lineage tracker - can follow
 one agent across steps.
+
+Here we follow the first agent of a run by its ``id`` for 250 steps, drawn over
+the field it started on, with a dot where it starts.
+
+.. plot::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from pyLEAFS import Simulation, palette
+
+   sim = Simulation.forager(seed=4)
+   pop = sim.populations[0]
+   agent = pop.ids[0]
+   food = sim.fields[0].positions
+
+   path = [pop.pos[0].copy()]
+   for _ in range(250):
+       sim.step()
+       path.append(pop.pos[pop.index_of(agent)].copy())
+   path = np.array(path)
+
+   fig, ax = plt.subplots()
+   ax.scatter(food[:, 0], food[:, 1], s=8, color=palette.food_green)
+   ax.plot(path[:, 0], path[:, 1], color=palette.motor_wine)
+   ax.plot(*path[0], 'o', color=palette.motor_wine)
+   centre = (path.min(axis=0) + path.max(axis=0)) / 2
+   half = np.ptp(path, axis=0).max() / 2 + 5
+   ax.set_xlim(centre[0] - half, centre[0] + half)
+   ax.set_ylim(centre[1] - half, centre[1] + half)
+   ax.set_aspect('equal')
+   ax.set_xlabel('x')
+   ax.set_ylabel('y')
+   plt.show()
 
 The controller
 --------------

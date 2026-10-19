@@ -16,10 +16,11 @@ timestep of duration :math:`dt` births and kills them stochastically:
 .. math::
 
    k_\mathrm{grow}  &\sim \mathrm{Poisson}\!\left(\frac{\Gamma\,L^{D}\,dt}{\epsilon}\right) \\
-   k_\mathrm{decay} &\sim \mathrm{Binomial}\!\left(N,\; 1 - e^{-\gamma\,dt}\right)
+   k_\mathrm{decay} &\sim \mathrm{Binomial}\!\left(N,\; 1 - e^{-dt/\tau_E}\right)
 
-where :math:`\Gamma` is the energy influx per unit volume, :math:`\gamma` the
-resource decay rate, :math:`\epsilon` the energy carried by one resource, and
+where :math:`\Gamma` is the energy influx per unit volume, :math:`\tau_E` the
+resource lifetime, the inverse of the decay rate :math:`\gamma`, :math:`\epsilon`
+the energy carried by one resource, and
 :math:`L` the region side length. Births place a resource uniformly in the
 region and deaths remove uniformly chosen ones; both counts for every region
 come from two vectorized calls per step, with the grow/decay order randomized
@@ -30,13 +31,13 @@ With no agents present the field relaxes to an equilibrium count per region
 
 .. math::
 
-   N_\mathrm{eq} = \frac{\Gamma\,L^{D}}{\epsilon\,\gamma},
+   N_\mathrm{eq} = \frac{\Gamma\,\tau_E\,L^{D}}{\epsilon},
 
 which :class:`~pyLEAFS.fields.ResourceField` exposes as ``N_eq``.
 
 Start the field empty, with no agents, and it fills toward that count on the
-timescale :math:`1/\gamma`. The dashed line is :math:`N_\mathrm{eq}` summed over
-the regions.
+timescale :math:`\tau_E`. The count is plotted in units of :math:`N_R^{\max}`,
+:math:`N_\mathrm{eq}` summed over the regions, so the dashed line sits at 1.
 
 .. plot::
 
@@ -48,17 +49,20 @@ the regions.
    field = sim.fields[0]
    field.seed(sim.rng, n0=0)
 
+   tau_E = 1 / field.gamma
+   NR_max = field.N_eq * sim.grid.n_regions
+
    counts = []
    for _ in range(3000):
        sim.step()
-       counts.append(field.total())
+       counts.append(field.total() / NR_max)
    t = sim.dt * np.arange(1, 3001)
 
    fig, ax = plt.subplots()
-   ax.plot(t, counts, color=palette.resource_deep)
-   ax.axhline(field.N_eq * sim.grid.n_regions, color='k', ls='--', lw=1)
-   ax.set_xlabel('time')
-   ax.set_ylabel('resources')
+   ax.plot(t / tau_E, counts, color=palette.resource_deep)
+   ax.axhline(1, color='k', ls='--', lw=1)
+   ax.set_xlabel(r'$t/\tau_E$')
+   ax.set_ylabel(r'$N_R/N_R^{\max}$')
    plt.show()
 
 Homogeneity
@@ -76,13 +80,13 @@ dimensionless **homogeneity** :math:`\Xi`, the ratio of the agent length scale
    \qquad
    \tau_E = 1/\gamma .
 
-Taking the agent length scale to be the collection radius
-(:math:`\ell_A = r_\mathrm{col}` in the 2d applet) and inverting for the energy
-per resource gives the relation :meth:`~pyLEAFS.simulation.Simulation.forager` uses:
+In pyLEAFS the agent length scale :math:`\ell_A` is the collection radius.
+Inverting for the energy per resource gives the relation
+:meth:`~pyLEAFS.simulation.Simulation.forager` uses:
 
 .. math::
 
-   \epsilon = \frac{\Gamma}{\,(\Xi / r_\mathrm{col})^{D}\,\gamma\,}.
+   \epsilon = \Gamma\,\tau_E\,\ell_E^{D} = \Gamma\,\tau_E \left(\frac{\ell_A}{\Xi}\right)^{D}.
 
 Small :math:`\Xi` is a *heterogeneous* world: few energy-rich resources, widely
 spaced. Large :math:`\Xi` is a *homogeneous* one: many lean resources, densely
@@ -143,8 +147,7 @@ model; replacing it with a learned controller is a *(later layer)*.
 with :math:`v` the translational speed.
 
 **Harvesting and metabolism.** Every resource within the collection radius
-:math:`r_\mathrm{col}` is consumed, each returning energy :math:`\epsilon`. Fuel
-follows
+:math:`\ell_A` is consumed, each returning energy :math:`\epsilon`. Fuel follows
 
 .. math::
 
@@ -165,35 +168,44 @@ is a *(later layer)*.
 Track one agent by its ``id``: it starts full and buds on its first step, and
 from then on you see its fuel drain at the steady rate :math:`\mu_0`, jump by
 :math:`\epsilon` with each resource it collects, and halve when it reaches the
-budding threshold, the dashed line.
+budding threshold, the grey line. Fuel is plotted in units of
+:math:`s_\mathrm{rep}`, so that line sits at 1, and time in units of
+:math:`\tau_A`; each halving is drawn dashed.
 
 .. plot::
 
+   import numpy as np
    import matplotlib.pyplot as plt
    from pyLEAFS import Simulation, palette
 
    sim = Simulation.forager(seed=1)
    pop = sim.populations[0]
    agent = pop.ids[0]
+   s_rep = pop.repro_threshold
 
    # A bud halves the fuel within a step, so on a step where the agent buds
-   # we also draw the fuel it had just before, twice what is left after.
-   t, fuel = [], []
+   # we also draw the fuel it had just before, twice what is left after, and
+   # join the two with a dashed drop.
+   t, fuel, drops = [], [], []
    for k in range(1, 1001):
        buds = int(pop.offspring[pop.index_of(agent)])
        sim.step()
        i = pop.index_of(agent)
+       tk, s = k * sim.dt / pop.tau_A, pop.fuel[i] / s_rep
        if pop.offspring[i] > buds:
-           t.append(k * sim.dt)
-           fuel.append(2 * pop.fuel[i])
-       t.append(k * sim.dt)
-       fuel.append(pop.fuel[i])
+           t += [tk, np.nan]
+           fuel += [2 * s, np.nan]
+           drops.append((tk, s))
+       t.append(tk)
+       fuel.append(s)
 
    fig, ax = plt.subplots()
    ax.plot(t, fuel, color=palette.motor_wine)
-   ax.axhline(pop.repro_threshold, color='k', ls='--', lw=1)
-   ax.set_xlabel('time')
-   ax.set_ylabel('fuel')
+   for tk, s in drops:
+       ax.plot([tk, tk], [2 * s, s], color=palette.motor_wine, ls='--')
+   ax.axhline(1, color='0.6', lw=1)
+   ax.set_xlabel(r'$t/\tau_A$')
+   ax.set_ylabel(r'$s/s_\mathrm{rep}$')
    plt.show()
 
 Population dynamics
@@ -236,20 +248,21 @@ hovers about 1.
    field, pop = sim.fields[0], sim.populations[0]
    NR_max = field.N_eq * sim.grid.n_regions
    NA_max = field.Gamma * np.prod(sim.grid.extent) / pop.mu0
+   tau_E = 1 / field.gamma
 
    nR, nA = [], []
    for _ in range(2000):
        sim.step()
        nR.append(field.total() / NR_max)
        nA.append(pop.count / NA_max)
-   t = sim.dt * np.arange(1, 2001)
+   t = sim.dt * np.arange(1, 2001) / tau_E
 
    fig, ax = plt.subplots()
    ax.plot(t, nR, color=palette.resource_deep, label=r'$N_R/N_R^{\max}$')
    ax.plot(t, nA, color=palette.motor_wine, label=r'$N_A/N_A^{\max}$')
    ax.plot(t, np.add(nR, nA), color='k', label='sum')
    ax.axhline(1, color='k', ls='--', lw=1)
-   ax.set_xlabel('time')
+   ax.set_xlabel(r'$t/\tau_E$')
    ax.set_ylabel('normalized count')
    ax.legend()
    plt.show()
@@ -267,12 +280,11 @@ agent's geometry,
 
 .. math::
 
-   \sin(\pi\,\eta_c) = \frac{r}{R},
+   \sin(\pi\,\eta_c) = \frac{\ell_A}{R},
 
-with :math:`r` the collection radius and :math:`R` the sensing radius. Computing
-the mutual information, transfer entropy, and viability curve from logged
-trajectories is a planned analysis *(later layer)*; v1 provides the dynamics they
-are measured on.
+with :math:`R` the sensing radius. Computing the mutual information, transfer
+entropy, and viability curve from logged trajectories is a planned analysis
+*(later layer)*; v1 provides the dynamics they are measured on.
 
 Roadmap of layers
 -----------------

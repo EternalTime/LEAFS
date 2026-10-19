@@ -529,9 +529,9 @@
     const BOX = '#2B3A52';          // abyss_blue
     const EDGE = '#808898';         // sensor_slate
     const FOOD = '#50C870';         // food_green
-    const AGENT = '#F0A0C0';        // brain_pink
     const WINE = '#7A1838';         // motor_wine
     const MIST = '#D8E8F0';         // sensor_mist
+    let AGENT;                      // brain_pink, read from the stylesheet
 
     const P = { Xi: 0.5, R_sense: 6.0, v: 20.0, sigma: 0.1 };
     let world = null;
@@ -740,13 +740,15 @@
         c.setLineDash([]);
         const n = histA.length;
         c.lineWidth = 1.4;
+        c.strokeStyle = AGENT;
         for (let k = 1; k < n; k++) {
-            c.strokeStyle = 'rgba(240, 160, 192, ' + (0.08 + 0.9 * k / n).toFixed(3) + ')';
+            c.globalAlpha = 0.08 + 0.9 * k / n;
             c.beginPath();
             c.moveTo(px(histR[k - 1]), py(histA[k - 1]));
             c.lineTo(px(histR[k]), py(histA[k]));
             c.stroke();
         }
+        c.globalAlpha = 1;
         if (n) {
             c.fillStyle = AGENT;
             c.beginPath();
@@ -761,7 +763,7 @@
     }
 
     function readout() {
-        setText('leafs-t', (world.steps * DT).toFixed(2));
+        setText('leafs-t', (world.steps * DT * DECAY).toFixed(2));   // t / tau_E
         setText('leafs-na', world.n ? String(world.n) : '0, extinct');
         setText('leafs-nr', String(world.total()));
         const i = selected === null ? -1 : world.indexOf(selected);
@@ -828,7 +830,7 @@
       <div id="leafs-stage">
         <canvas id="leafs-canvas"></canvas>
         <div id="leafs-readout" class="leafs-ov">
-          <div class="leafs-row"><span class="k">time</span><span class="v" id="leafs-t">0.00</span></div>
+          <div class="leafs-row"><span class="k">\\(t/\\tau_E\\)</span><span class="v" id="leafs-t">0.00</span></div>
           <div class="leafs-row"><span class="k">foragers</span><span class="v" id="leafs-na">5</span></div>
           <div class="leafs-row"><span class="k">resources</span><span class="v" id="leafs-nr">0</span></div>
           <div id="leafs-agent">
@@ -862,9 +864,10 @@
             <canvas id="leafs-trace"></canvas>
             <div class="leafs-cap"><span class="ag">foragers</span> and <span class="rs">resources</span></div>
           </div>
-          <div class="leafs-meter">
+          <div class="leafs-meter leafs-plot">
+            <div class="leafs-ylab"><span>\\(N_A/N_A^{\\max}\\)</span></div>
             <canvas id="leafs-phase"></canvas>
-            <div class="leafs-cap">phase plane, log axes</div>
+            <div class="leafs-cap">\\(N_R/N_R^{\\max}\\)</div>
           </div>
         </div>
       </div>
@@ -896,6 +899,7 @@
         if (!root) return;
         root.innerHTML = UI;
         typesetMath(root);
+        AGENT = getComputedStyle(root).getPropertyValue('--leafs-forager').trim();
 
         canvas = document.getElementById('leafs-canvas');
         traceCv = document.getElementById('leafs-trace');

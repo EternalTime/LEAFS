@@ -58,7 +58,7 @@ the left edge of the box.
    fig, ax = plt.subplots()
    ax.scatter(food[:, 0], food[:, 1], s=4, color=palette.sensor_slate)
    ax.scatter(near[:, 0], near[:, 1], s=4, color=palette.resource_deep)
-   ax.plot(*point, 'o', color=palette.motor_wine)
+   ax.plot(*point, 'o', color=palette.brain_pink, mec=palette.motor_wine, mew=0.6)
    for k in range(1, grid.shape[0]):
        ax.axvline(k * grid.L, color='k', lw=0.5)
    for k in range(1, grid.shape[1]):
@@ -66,8 +66,8 @@ the left edge of the box.
    ax.set_xlim(0, grid.extent[0])
    ax.set_ylim(0, grid.extent[1])
    ax.set_aspect('equal')
-   ax.set_xlabel('x')
-   ax.set_ylabel('y')
+   ax.set_xlabel(r'$x$')
+   ax.set_ylabel(r'$y$')
    plt.show()
 
 The field list
@@ -138,15 +138,15 @@ the field it started on, with a dot where it starts.
 
    fig, ax = plt.subplots()
    ax.scatter(food[:, 0], food[:, 1], s=8, color=palette.food_green)
-   ax.plot(path[:, 0], path[:, 1], color=palette.motor_wine)
-   ax.plot(*path[0], 'o', color=palette.motor_wine)
+   ax.plot(path[:, 0], path[:, 1], color=palette.brain_pink, lw=2)
+   ax.plot(*path[0], 'o', color=palette.brain_pink, mec=palette.motor_wine, mew=0.6)
    centre = (path.min(axis=0) + path.max(axis=0)) / 2
    half = np.ptp(path, axis=0).max() / 2 + 5
    ax.set_xlim(centre[0] - half, centre[0] + half)
    ax.set_ylim(centre[1] - half, centre[1] + half)
    ax.set_aspect('equal')
-   ax.set_xlabel('x')
-   ax.set_ylabel('y')
+   ax.set_xlabel(r'$x$')
+   ax.set_ylabel(r'$y$')
    plt.show()
 
 The controller

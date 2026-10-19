@@ -113,8 +113,8 @@ ends, each dot's area proportional to its resource's energy :math:`\epsilon`.
        ax.set_ylim(0, sim.grid.extent[1])
        ax.set_aspect('equal')
        ax.set_title(r'$\Xi = %g$' % Xi)
-       ax.set_xlabel('x')
-   axes[0].set_ylabel('y')
+       ax.set_xlabel(r'$x$')
+   axes[0].set_ylabel(r'$y$')
    plt.show()
 
 The agent
@@ -200,9 +200,9 @@ budding threshold, the grey line. Fuel is plotted in units of
        fuel.append(s)
 
    fig, ax = plt.subplots()
-   ax.plot(t, fuel, color=palette.motor_wine)
+   ax.plot(t, fuel, color=palette.brain_pink, lw=2)
    for tk, s in drops:
-       ax.plot([tk, tk], [2 * s, s], color=palette.motor_wine, ls='--')
+       ax.plot([tk, tk], [2 * s, s], color=palette.brain_pink, lw=2, ls='--')
    ax.axhline(1, color='0.6', lw=1)
    ax.set_xlabel(r'$t/\tau_A$')
    ax.set_ylabel(r'$s/s_\mathrm{rep}$')
@@ -259,11 +259,11 @@ hovers about 1.
 
    fig, ax = plt.subplots()
    ax.plot(t, nR, color=palette.resource_deep, label=r'$N_R/N_R^{\max}$')
-   ax.plot(t, nA, color=palette.motor_wine, label=r'$N_A/N_A^{\max}$')
-   ax.plot(t, np.add(nR, nA), color='k', label='sum')
+   ax.plot(t, nA, color=palette.brain_pink, lw=2, label=r'$N_A/N_A^{\max}$')
+   ax.plot(t, np.add(nR, nA), color='k', label=r'$\mathrm{sum}$')
    ax.axhline(1, color='k', ls='--', lw=1)
    ax.set_xlabel(r'$t/\tau_E$')
-   ax.set_ylabel('normalized count')
+   ax.set_ylabel(r'$\mathrm{normalized\ count}$')
    ax.legend()
    plt.show()
 

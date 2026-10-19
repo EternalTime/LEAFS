@@ -109,6 +109,48 @@ def test_ids_are_stable_through_death():
     assert pop.index_of(b) is not None
 
 
+def _still_forager(grid, x, y):
+    """A forager at (x, y) that neither moves nor burns fuel."""
+    pop = Population(grid, v=0.0, dt=0.025, r_collect=1.0, R_sense=6.0,
+                     mu0=0.0, s_max=1.0)
+    pop.add([x, y], heading=[1.0, 0.0], fuel=0.5)
+    return pop
+
+
+def test_harvest_takes_two_resources_from_one_region_including_its_last():
+    g = Grid((5, 5), L=10.0)
+    rf = ResourceField(g, Gamma=0.001, gamma=0.1, epsilon=0.1, dt=0.025)
+    # region 12 spans [20, 30)^2; slots 0 and 2 (the last) are within reach
+    # of a forager at (25, 25), slot 1 is not
+    base = 12 * rf._cap
+    rf._local[base : base + 3] = [[0.5, 0.55], [0.1, 0.1], [0.55, 0.5]]
+    rf.count[12] = 3
+    pop = _still_forager(g, 25.0, 25.0)
+    pop.step([rf], np.random.default_rng(0))
+    assert rf.total() == 1
+    assert np.allclose(rf.all_positions(), [[21.0, 21.0]])
+    assert pop.harvested[0] == 2
+    assert pop.fuel[0] == pytest.approx(0.5 + 2 * rf.epsilon)
+
+
+def test_harvest_takes_a_resource_once_when_its_region_repeats_in_the_neighbourhood():
+    # on a 2 x 2 grid the region beside a forager is its neighbour on both
+    # sides, so its resources are listed twice
+    g = Grid((2, 2), L=10.0)
+    rf = ResourceField(g, Gamma=0.001, gamma=0.1, epsilon=0.1, dt=0.025)
+    # region 2 spans [10, 20) x [0, 10); slot 0 is within reach of a forager
+    # at (9.8, 5), slot 1 is not
+    base = 2 * rf._cap
+    rf._local[base : base + 2] = [[0.02, 0.5], [0.9, 0.9]]
+    rf.count[2] = 2
+    pop = _still_forager(g, 9.8, 5.0)
+    pop.step([rf], np.random.default_rng(0))
+    assert rf.total() == 1
+    assert np.allclose(rf.all_positions(), [[19.0, 9.0]])
+    assert pop.harvested[0] == 1
+    assert pop.fuel[0] == pytest.approx(0.5 + rf.epsilon)
+
+
 # ------------------------------------------------------------- Simulation
 def test_seeded_runs_are_reproducible():
     s1 = Simulation.forager(seed=42)

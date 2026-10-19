@@ -169,7 +169,6 @@ budding threshold, the dashed line.
 
 .. plot::
 
-   import numpy as np
    import matplotlib.pyplot as plt
    from pyLEAFS import Simulation, palette
 

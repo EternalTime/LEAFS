@@ -441,14 +441,22 @@
         }
 
         // Harvest, agent by agent: every resource within r_col of it, read
-        // off before it eats and removed by region and slot.
+        // off before it eats and removed by region and slot, each hit once,
+        // highest slot first within its region, so that a swap-delete never
+        // moves a resource still waiting to be taken.
         const r2 = R_COL ** 2;
         const energy = new Float64Array(n);
         for (let i = 0; i < n; i++) {
             const nb = this.neighbourhood(this.px[i], this.py[i]);
+            const hits = [];
             for (let j = 0; j < nb.length; j += 4) {
                 if (nb[j] * nb[j] + nb[j + 1] * nb[j + 1] > r2) continue;
-                if (this.harvestSlot(nb[j + 2], nb[j + 3])) {
+                const r = nb[j + 2], s = nb[j + 3];
+                if (!hits.some(h => h[0] === r && h[1] === s)) hits.push([r, s]);
+            }
+            hits.sort((a, b) => b[0] - a[0] || b[1] - a[1]);
+            for (const [r, s] of hits) {
+                if (this.harvestSlot(r, s)) {
                     energy[i] += this.epsilon;
                     this.harvested[i]++;
                 }

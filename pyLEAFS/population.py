@@ -269,9 +269,14 @@ class Population:
             if disp.shape[0] == 0:
                 continue
             d2 = np.einsum("ij,ij->i", disp, disp)
-            hits = np.nonzero(d2 <= r2)[0]
-            for j in hits:
-                if resource.harvest(int(rids[j]), int(slots[j])):
+            hits = d2 <= r2
+            if not np.any(hits):
+                continue
+            # each hit once, highest slot first within its region, so that a
+            # swap-delete never moves a resource still waiting to be taken
+            hits = np.unique(np.stack([rids[hits], slots[hits]], axis=1), axis=0)
+            for rid, slot in hits[::-1]:
+                if resource.harvest(int(rid), int(slot)):
                     energy[i] += resource.epsilon
                     self._harvested[i] += 1
         return energy

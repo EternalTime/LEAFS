@@ -51,12 +51,20 @@ nb_execution_timeout = 900
 # run their code on every build and show it above the figure.  Every run is
 # seeded, so each build draws the same figures.  They are saved the way the
 # notebook pages save theirs, as one PNG at 100 dpi trimmed to the drawing.
+# All of their text - labels, ticks, legends and titles - is typeset by LaTeX
+# in Computer Modern, as the notebook pages' is (see their first cell), so
+# building the manual needs a LaTeX install with dvipng.
 plot_include_source = True
 plot_html_show_source_link = False
 plot_html_show_formats = False
 plot_formats = [('png', 100)]
 plot_apply_rcparams = True
-plot_rcparams = {'savefig.bbox': 'tight'}
+plot_rcparams = {
+    'savefig.bbox': 'tight',
+    'text.usetex': True,
+    'font.family': 'serif',
+    'font.serif': ['Computer Modern Roman'],
+}
 
 # Notebook text writes math as $...$ and $$...$$, which Jupyter and Colab
 # render too, where the {math} role would show up as raw markup.

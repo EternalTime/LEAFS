@@ -32,6 +32,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      # the figures typeset their text with LaTeX (see docs/conf.py)
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends texlive-latex-extra cm-super dvipng
       - run: python -m pip install --upgrade pip
       - run: pip install -e '.[docs]'
       - run: make -C docs html

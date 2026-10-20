@@ -11,7 +11,10 @@
     --leafs-blue: #003B71;
     --leafs-ink: #1C2030;
     --leafs-green: #50C870;
-    --leafs-pink: #F0A0C0;
+    /* pyLEAFS.palette.brain_pink, the agents' colour in the manual's
+       figures. The script reads it from here for the canvases too, so
+       this is its only definition. */
+    --leafs-forager: #F0A0C0;
     font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
     border: 1px solid #d8d8d8;
     border-radius: 10px;
@@ -120,7 +123,7 @@
 
 .leafs-ctl label .val {
     font-weight: 700;
-    color: var(--leafs-pink);
+    color: var(--leafs-forager);
     font-variant-numeric: tabular-nums;
 }
 
@@ -129,7 +132,7 @@
     width: 100%;
     height: 13px;
     margin: 0;
-    accent-color: var(--leafs-pink);
+    accent-color: var(--leafs-forager);
 }
 
 /* The meters: for looking at, not touching. */
@@ -154,8 +157,31 @@
     margin: 2px 0 6px;
 }
 
-.leafs-cap .ag { color: var(--leafs-pink); }
+.leafs-cap .ag { color: var(--leafs-forager); }
 .leafs-cap .rs { color: var(--leafs-green); }
+
+/* The phase plane, labelled as the manual labels its figures: N_A up the
+   left, turned to read bottom to top, and N_R along the bottom. */
+.leafs-plot {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+}
+
+.leafs-plot .leafs-cap { grid-column: 2; }
+
+.leafs-ylab {
+    position: relative;
+    color: #a3acbd;
+    font-size: 13px;
+}
+
+.leafs-ylab span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    white-space: nowrap;
+}
 
 /* MathJax renders into its own container; keep it inline, at our size, and
    in the panel's colour rather than the page's body colour. */
@@ -171,7 +197,8 @@
    their tops: the readout over the controls on the left, the controls
    held to the world's bottom edge, and the meters on the right. The world
    takes the width the columns leave, so the meters narrow with the card,
-   from 160px on the widest, just enough to keep it as tall as they are.
+   from at most 160px, just enough to keep it as tall as they are, and the
+   trace keeps the phase plane's label margin so the two line up.
    While a followed forager makes the left column taller than the world,
    the card grows below the world rather than moving it. */
 @container leafs (min-width: 610px) {
@@ -193,7 +220,8 @@
     #leafs-readout { grid-column: 1; grid-row: 1; }
     #leafs-controls { grid-column: 1; grid-row: 2; align-self: end; }
     #leafs-meters { grid-column: 3; grid-row: 1 / 3; }
-    #leafs-trace, #leafs-phase { width: min(160px, (100cqw - 304px) / 2.45); }
+    #leafs-meters .leafs-meter:not(.leafs-plot) { padding-left: 16px; }
+    #leafs-trace, #leafs-phase { width: min(160px, (100cqw - 320px) / 2.45); }
     #leafs-trace { height: auto; aspect-ratio: 160 / 72; }
     #leafs-phase { height: auto; aspect-ratio: 1 / 1; }
 }
@@ -223,9 +251,9 @@
         grid-template-columns: 1fr 1fr;
         gap: 6px 14px;
     }
-    #leafs-meters { display: flex; gap: 10px; align-items: flex-end; }
+    #leafs-meters { display: flex; gap: 10px; align-items: flex-start; }
     #leafs-meters .leafs-meter { flex: 1; min-width: 0; }
-    #leafs-meters .leafs-meter + .leafs-meter { flex: 0 0 120px; }
+    #leafs-meters .leafs-meter + .leafs-meter { flex: 0 0 136px; }
     #leafs-trace, #leafs-phase { width: 100%; height: 120px; }
     .leafs-cap { margin-bottom: 0; }
 }
